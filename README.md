@@ -13,12 +13,14 @@ Local tournament website for the Manjappada Masters football club cup.
 - Top scorers leaderboard
 - Seeded sample season data
 
-## Quick start (local)
+## Quick start (local, no Docker)
+
+Docker is optional. On this machine MySQL can run directly.
 
 ### 1. Prerequisites
 
 - Node.js 18+
-- Docker (recommended for MySQL) **or** a local MySQL 8 instance
+- MySQL 8 (`sudo apt-get install -y mysql-server`)
 
 ### 2. Install dependencies
 
@@ -27,24 +29,13 @@ npm install
 npm run install:all
 ```
 
-### 3. Start MySQL
-
-With Docker:
+### 3. Set up the database
 
 ```bash
-docker compose up -d db
+npm run db:setup
 ```
 
-Schema + seed load automatically from `database/`.
-
-Without Docker, create a database and run:
-
-```bash
-mysql -u root -p < database/schema.sql
-mysql -u root -p < database/seed.sql
-```
-
-Then copy `.env.example` to `server/.env` and set your credentials.
+This starts MySQL if needed, creates the `masters` user, and loads schema + seed data.
 
 ### 4. Run the app
 
@@ -71,6 +62,16 @@ npm start
 
 Serves the built React app from Express on port 5000.
 
+## Optional: MySQL via Docker
+
+If you have Docker installed:
+
+```bash
+docker compose up -d db
+```
+
+Schema + seed load automatically from `database/`.
+
 ## API overview
 
 | Method | Path | Description |
@@ -92,12 +93,13 @@ Serves the built React app from Express on port 5000.
 client/          React + Vite frontend
 server/          Express API
 database/        MySQL schema + seed
-docker-compose.yml
+scripts/         Local setup helpers
+docker-compose.yml   Optional Docker MySQL
 ```
 
-## Default DB credentials (Docker)
+## Default DB credentials
 
 - Database: `manjappada_masters`
 - User: `masters` / `masters123`
-- Root: `root` / `rootpass`
 - Port: `3306`
+- Config: `server/.env` (from `.env.example`)
