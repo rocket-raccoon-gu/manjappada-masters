@@ -2,7 +2,7 @@
 
 Local tournament website for the Manjappada Masters football club cup.
 
-**Stack:** React (Vite) · Express · MySQL
+**Stack:** React (Vite) · Express · MySQL (via **XAMPP**)
 
 ## Features
 
@@ -13,31 +13,43 @@ Local tournament website for the Manjappada Masters football club cup.
 - Top scorers leaderboard
 - Seeded sample season data
 
-## Quick start (local, no Docker)
-
-Docker is optional. On this machine MySQL can run directly.
+## Quick start (XAMPP local DB)
 
 ### 1. Prerequisites
 
 - Node.js 18+
-- MySQL 8 (`sudo apt-get install -y mysql-server`)
+- [XAMPP](https://www.apachefriends.org/) (Apache + MariaDB/MySQL + phpMyAdmin)
 
-### 2. Install dependencies
+### 2. Start XAMPP MySQL
+
+**Linux**
+
+```bash
+sudo /opt/lampp/lampp start
+# or only MySQL:
+sudo /opt/lampp/lampp startmysql
+```
+
+**Windows / macOS** — open XAMPP Control Panel and start **MySQL** (and Apache if you want phpMyAdmin).
+
+### 3. Install app dependencies
 
 ```bash
 npm install
 npm run install:all
 ```
 
-### 3. Set up the database
+### 4. Create DB + seed data
 
 ```bash
 npm run db:setup
 ```
 
-This starts MySQL if needed, creates the `masters` user, and loads schema + seed data.
+This uses XAMPP’s MySQL (`root` with empty password by default), loads `database/schema.sql` + `database/seed.sql`, and writes `server/.env` if missing.
 
-### 4. Run the app
+You can also create the DB in **phpMyAdmin** (`http://localhost/phpmyadmin`) and import those SQL files manually.
+
+### 5. Run the app
 
 ```bash
 npm run dev
@@ -45,15 +57,9 @@ npm run dev
 
 - Frontend: http://localhost:5173  
 - API: http://localhost:5000  
+- phpMyAdmin: http://localhost/phpmyadmin  
 
-Or run separately:
-
-```bash
-npm run server
-npm run client
-```
-
-### 5. Production-style local serve
+### 6. Production-style local serve
 
 ```bash
 npm run build
@@ -62,15 +68,19 @@ npm start
 
 Serves the built React app from Express on port 5000.
 
-## Optional: MySQL via Docker
+## XAMPP DB connection (default)
 
-If you have Docker installed:
+| Setting  | Value                 |
+|----------|-----------------------|
+| Host     | `127.0.0.1`           |
+| Port     | `3306`                |
+| User     | `root`                |
+| Password | _(empty)_             |
+| Database | `manjappada_masters`  |
 
-```bash
-docker compose up -d db
-```
+Config file: `server/.env` (from `.env.example`).
 
-Schema + seed load automatically from `database/`.
+If you set a MySQL root password in XAMPP, put it in `server/.env` as `DB_PASSWORD=...`.
 
 ## API overview
 
@@ -90,16 +100,9 @@ Schema + seed load automatically from `database/`.
 ## Project layout
 
 ```
-client/          React + Vite frontend
-server/          Express API
-database/        MySQL schema + seed
-scripts/         Local setup helpers
-docker-compose.yml   Optional Docker MySQL
+client/            React + Vite frontend
+server/            Express API
+database/          MySQL schema + seed
+scripts/setup-db.sh  XAMPP DB bootstrap
+docker-compose.yml   Optional (not required with XAMPP)
 ```
-
-## Default DB credentials
-
-- Database: `manjappada_masters`
-- User: `masters` / `masters123`
-- Port: `3306`
-- Config: `server/.env` (from `.env.example`)

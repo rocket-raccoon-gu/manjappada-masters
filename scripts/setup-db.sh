@@ -1,53 +1,64 @@
 #!/usr/bin/env bash
-# Set up MySQL locally without Docker.
+# Set up the tournament DB on local XAMPP MySQL/MariaDB.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DB_NAME="${DB_NAME:-manjappada_masters}"
-DB_USER="${DB_USER:-masters}"
-DB_PASSWORD="${DB_PASSWORD:-masters123}"
+DB_USER="${DB_USER:-root}"
+DB_PASSWORD="${DB_PASSWORD:-}"
+LAMPP_BIN="${LAMPP_BIN:-/opt/lampp}"
 
-echo "→ Ensuring MySQL is running..."
-
-if ! mysqladmin --protocol=socket ping &>/dev/null && ! sudo mysqladmin ping &>/dev/null; then
-  if command -v mysqld >/dev/null 2>&1; then
-    sudo mkdir -p /var/run/mysqld
-    sudo chown mysql:mysql /var/run/mysqld 2>/dev/null || true
-    sudo mysqld --user=mysql --daemonize 2>/dev/null || sudo service mysql start 2>/dev/null || true
-    sleep 2
+mysql_cli() {
+  if [[ -x "$LAMPP_BIN/bin/mysql" ]]; then
+    if [[ -n "$DB_PASSWORD" ]]; then
+      "$LAMPP_BIN/bin/mysql" -u "$DB_USER" -p"$DB_PASSWORD" "$@"
+    else
+      "$LAMPP_BIN/bin/mysql" -u "$DB_USER" "$@"
+    fi
+  elif command -v mysql >/dev/null 2>&1; then
+    if [[ -n "$DB_PASSWORD" ]]; then
+      mysql -u "$DB_USER" -p"$DB_PASSWORD" "$@"
+    else
+      mysql -u "$DB_USER" "$@"
+    fi
   else
-    echo "MySQL is not installed."
-    echo "Install it with:"
-    echo "  sudo apt-get update && sudo apt-get install -y mysql-server"
+    echo "MySQL client not found. Install XAMPP or MySQL."
+    exit 1
+  fi
+}
+
+echo "→ Ensuring XAMPP MySQL is running..."
+
+if [[ -x "$LAMPP_BIN/lampp" ]]; then
+  if ! "$LAMPP_BIN/bin/mysqladmin" ping &>/dev/null; then
+    echo "  Starting XAMPP MySQL..."
+    sudo "$LAMPP_BIN/lampp" startmysql
+    sleep 2
+  fi
+  if ! "$LAMPP_BIN/bin/mysqladmin" ping &>/dev/null; then
+    echo "Could not start XAMPP MySQL. Try: sudo $LAMPP_BIN/lampp start"
+    exit 1
+  fi
+  echo "  XAMPP MySQL is up ($("$LAMPP_BIN/bin/mysql" -u root -Nse 'SELECT VERSION()' 2>/dev/null || echo MariaDB))"
+else
+  echo "  XAMPP not found at $LAMPP_BIN"
+  echo "  Install from https://www.apachefriends.org/ then re-run this script."
+  if ! mysqladmin ping &>/dev/null && ! sudo mysqladmin ping &>/dev/null; then
+    echo "No local MySQL is running either."
     exit 1
   fi
 fi
 
-if ! sudo mysqladmin ping &>/dev/null; then
-  echo "Could not start MySQL. Install mysql-server or start it manually."
-  exit 1
-fi
-
-echo "→ Creating database user and loading schema/seed..."
-
-sudo mysql <<SQL
-CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
-CREATE USER IF NOT EXISTS '${DB_USER}'@'127.0.0.1' IDENTIFIED BY '${DB_PASSWORD}';
-CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';
-GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'127.0.0.1';
-GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%';
-FLUSH PRIVILEGES;
-SQL
-
-sudo mysql < "$ROOT/database/schema.sql"
-sudo mysql < "$ROOT/database/seed.sql"
+echo "→ Loading schema and seed into ${DB_NAME}..."
+mysql_cli < "$ROOT/database/schema.sql"
+mysql_cli < "$ROOT/database/seed.sql"
 
 if [[ ! -f "$ROOT/server/.env" ]]; then
   cp "$ROOT/.env.example" "$ROOT/server/.env"
-  echo "→ Created server/.env from .env.example"
+  echo "→ Created server/.env from .env.example (XAMPP root / empty password)"
 fi
 
-echo "✓ Database ready: ${DB_NAME} (user ${DB_USER})"
+TEAM_COUNT="$(mysql_cli -Nse "SELECT COUNT(*) FROM ${DB_NAME}.teams")"
+echo "✓ Database ready on XAMPP: ${DB_NAME} (${TEAM_COUNT} teams)"
+echo "  phpMyAdmin: http://localhost/phpmyadmin"
 echo "  Next: npm run dev"
