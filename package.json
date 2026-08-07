@@ -1,0 +1,22 @@
+{
+  "name": "manjappada-masters",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Manjappada Masters — Club Master Football Tournament",
+  "scripts": {
+    "install:all": "npm install --prefix server && npm install --prefix client",
+    "db:setup": "bash scripts/setup-db.sh",
+    "db:xampp": "bash scripts/setup-db.sh",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "db:init": "npm run db:init --prefix server",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently -n server,client -c green,cyan \"npm run server\" \"npm run client\"",
+    "build": "npm run build --prefix client",
+    "start": "npm start --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
