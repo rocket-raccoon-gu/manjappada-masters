@@ -13,7 +13,7 @@ import playersRouter from './routes/players.js';
 dotenv.config();
 
 const app = express();
-const port = Number(process.env.PORT || 5000);
+const port = Number(process.env.PORT || 5001);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(

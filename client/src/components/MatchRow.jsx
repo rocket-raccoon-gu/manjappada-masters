@@ -18,7 +18,7 @@ export default function MatchRow({ match }) {
   return (
     <article className="match-row">
       <div className="team-side">
-        <span className="crest" style={{ background: match.home_color || '#0B3D2E' }}>
+        <span className="crest" style={{ background: match.home_color || '#00299c' }}>
           {match.home_short}
         </span>
         <span>{match.home_team}</span>
@@ -33,7 +33,7 @@ export default function MatchRow({ match }) {
 
       <div className="team-side away">
         <span>{match.away_team}</span>
-        <span className="crest" style={{ background: match.away_color || '#1A3A5C' }}>
+        <span className="crest" style={{ background: match.away_color || '#001868' }}>
           {match.away_short}
         </span>
       </div>

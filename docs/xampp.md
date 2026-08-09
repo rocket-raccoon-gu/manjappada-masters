@@ -23,4 +23,4 @@ Uses XAMPP MySQL as `root` with an empty password (default).
 
 - phpMyAdmin: http://localhost/phpmyadmin
 - Tournament site (Vite): http://localhost:5173
-- API: http://localhost:5000/api/health
+- API: http://localhost:5001/api/health

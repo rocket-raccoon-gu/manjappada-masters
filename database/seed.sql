@@ -4,14 +4,14 @@ INSERT INTO tournament (name, season, venue, start_date, end_date, status) VALUE
 ('Manjappada Masters Club Cup', '2026', 'Manjappada Ground', '2026-03-01', '2026-04-20', 'live');
 
 INSERT INTO teams (name, short_name, city, primary_color, secondary_color, coach, founded_year) VALUES
-('Manjappada United', 'MJU', 'Manjappada', '#0B3D2E', '#F5C518', 'Ravi Krishnan', 2012),
-('Coastal Strikers', 'CST', 'Kozhikode', '#1A3A5C', '#E8E8E8', 'Anil Menon', 2015),
+('Manjappada United', 'MJU', 'Manjappada', '#000c24', '#d2a047', 'Ravi Krishnan', 2012),
+('Coastal Strikers', 'CST', 'Kozhikode', '#0a1f3d', '#e8e8e8', 'Anil Menon', 2015),
 ('Highland Rovers', 'HLR', 'Wayanad', '#5C1A1A', '#F0E6D2', 'Suresh Nair', 2010),
-('Valley Warriors', 'VLW', 'Palakkad', '#2E4A1C', '#C4A35A', 'Faizal Rahman', 2014),
+('Valley Warriors', 'VLW', 'Palakkad', '#001433', '#c4a35a', 'Faizal Rahman', 2014),
 ('Harbor FC', 'HFC', 'Kochi', '#0D2B4A', '#FF6B35', 'Deepak Joseph', 2011),
 ('Sunrise Athletic', 'SUN', 'Thrissur', '#8B4513', '#FFE4B5', 'Vinod Kumar', 2016),
 ('Tiger XI', 'TGX', 'Malappuram', '#1C1C1C', '#FF4500', 'Hashim Ali', 2013),
-('Emerald City', 'EMC', 'Kannur', '#145A32', '#FFFFFF', 'Pradeep S', 2009);
+('Desert Falcons', 'DSF', 'Doha', '#041126', '#e4a848', 'Pradeep S', 2009);
 
 INSERT INTO players (team_id, name, jersey_number, position, age) VALUES
 (1, 'Arjun Das', 1, 'GK', 28),

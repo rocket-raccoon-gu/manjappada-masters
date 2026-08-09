@@ -46,8 +46,8 @@ router.post('/', async (req, res, next) => {
       name,
       short_name,
       city,
-      primary_color = '#0B3D2E',
-      secondary_color = '#F5C518',
+      primary_color = '#00299c',
+      secondary_color = '#f3d117',
       coach = null,
       founded_year = null,
     } = req.body;

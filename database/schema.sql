@@ -29,8 +29,8 @@ CREATE TABLE teams (
   name VARCHAR(100) NOT NULL UNIQUE,
   short_name VARCHAR(10) NOT NULL,
   city VARCHAR(80) NOT NULL,
-  primary_color VARCHAR(20) NOT NULL DEFAULT '#0B3D2E',
-  secondary_color VARCHAR(20) NOT NULL DEFAULT '#F5C518',
+  primary_color VARCHAR(20) NOT NULL DEFAULT '#00299c',
+  secondary_color VARCHAR(20) NOT NULL DEFAULT '#f3d117',
   coach VARCHAR(100) NULL,
   founded_year INT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

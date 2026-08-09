@@ -13,10 +13,10 @@ export default function Layout() {
       <header className="site-header">
         <div className="container nav-row">
           <NavLink to="/" className="brand">
-            <span className="brand-mark">MM</span>
+            <img className="brand-logo" src="/mmfl-logo.png" alt="Masters league crest" />
             <span className="brand-text">
-              <strong>Manjappada Masters</strong>
-              <span>Club Cup 2026</span>
+              <strong>Masters 7&apos;s</strong>
+              <span>Manjappada Qatar</span>
             </span>
           </NavLink>
           <nav className="nav-links" aria-label="Primary">
@@ -35,8 +35,11 @@ export default function Layout() {
 
       <footer className="site-footer">
         <div className="container footer-row">
-          <span>Manjappada Masters Club Cup</span>
-          <span>Local tournament hub · React · Express · MySQL</span>
+          <span className="footer-brand">
+            <img src="/mmfl-logo.png" alt="" />
+            Masters 7&apos;s Football League
+          </span>
+          <span>Manjappada Qatar Wing</span>
         </div>
       </footer>
     </div>

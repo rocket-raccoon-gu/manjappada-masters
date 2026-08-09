@@ -39,7 +39,7 @@ export default function TeamDetail() {
             <div className="section-head">
               <div>
                 <h2>Squad</h2>
-                <p>Registered players for the Club Cup.</p>
+                <p>Registered players for the Masters 7&apos;s season.</p>
               </div>
             </div>
 

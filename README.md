@@ -56,7 +56,7 @@ npm run dev
 ```
 
 - Frontend: http://localhost:5173  
-- API: http://localhost:5000  
+- API: http://localhost:5001  
 - phpMyAdmin: http://localhost/phpmyadmin  
 
 ### 6. Production-style local serve
@@ -66,7 +66,7 @@ npm run build
 npm start
 ```
 
-Serves the built React app from Express on port 5000.
+Serves the built React app from Express on port 5001.
 
 ## XAMPP DB connection (default)
 

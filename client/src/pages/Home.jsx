@@ -4,7 +4,6 @@ import useApi from '../hooks/useApi';
 import MatchRow from '../components/MatchRow.jsx';
 
 export default function Home() {
-  const tournament = useApi(() => api.tournament(), []);
   const matches = useApi(() => api.matches(), []);
   const standings = useApi(() => api.standings(), []);
   const scorers = useApi(() => api.scorers(), []);
@@ -14,29 +13,33 @@ export default function Home() {
     .slice(0, 4);
   const tablePreview = (standings.data || []).slice(0, 5);
   const topScorers = (scorers.data || []).slice(0, 5);
-  const status = tournament.data?.status || 'live';
 
   return (
     <>
       <section className="hero">
-        <div className="hero-field" aria-hidden="true" />
-        <div className="hero-glow" aria-hidden="true" />
-        <div className="container hero-content">
-          <p className={`status-pill ${status === 'live' ? 'live' : ''}`}>
-            {status === 'live' ? 'Season live' : status}
-          </p>
-          <h1 className="hero-brand">Manjappada Masters</h1>
-          <p className="hero-title">Club Cup football for the grounds that raised us.</p>
-          <p className="hero-copy">
-            Follow fixtures, the league table, and every club competing for the Masters crown.
-          </p>
-          <div className="cta-row">
-            <Link className="btn btn-primary" to="/fixtures">
-              View fixtures
-            </Link>
-            <Link className="btn btn-ghost" to="/standings">
-              League table
-            </Link>
+        <img
+          className="hero-banner"
+          src="/mmfl-banner.jpg"
+          alt="Masters 7's Football League — Manjappada Qatar Wing presents"
+        />
+        <div className="hero-band">
+          <div className="container hero-band-inner">
+            <div className="hero-content">
+              <h1 className="hero-brand">
+                Masters <em>7&apos;s</em> Football League
+              </h1>
+              <p className="hero-copy">
+                Masters teams · Age 40 &amp; above · Follow fixtures, standings, and every club in the race.
+              </p>
+            </div>
+            <div className="cta-row">
+              <Link className="btn btn-primary" to="/fixtures">
+                View fixtures
+              </Link>
+              <Link className="btn btn-ghost" to="/standings">
+                League table
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -46,8 +49,8 @@ export default function Home() {
           <div>
             <div className="section-head">
               <div>
-                <h2>Next on the pitch</h2>
-                <p>Upcoming kickoffs across the Club Cup calendar.</p>
+                <h2>Next kickoffs</h2>
+                <p>Upcoming matches across the Masters 7&apos;s calendar.</p>
               </div>
               <Link to="/fixtures" className="muted">
                 All fixtures →
