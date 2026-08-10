@@ -6,3 +6,6 @@ dist/
 client/dist/
 server/node_modules/
 client/node_modules/
+.wrangler/
+.dev.vars
+.cf-pages/

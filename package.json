@@ -10,13 +10,21 @@
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
     "db:init": "npm run db:init --prefix server",
+    "db:d1:local": "npx wrangler d1 execute manjappada_masters --local --file=database/d1/schema.sql && npx wrangler d1 execute manjappada_masters --local --file=database/d1/seed.sql",
+    "db:d1:remote": "npx wrangler d1 execute manjappada_masters --remote --file=database/d1/schema.sql && npx wrangler d1 execute manjappada_masters --remote --file=database/d1/seed.sql",
     "server": "npm run dev --prefix server",
     "client": "npm run dev --prefix client",
     "dev": "concurrently -n server,client -c green,cyan \"npm run server\" \"npm run client\"",
     "build": "npm run build --prefix client",
-    "start": "npm start --prefix server"
+    "start": "npm start --prefix server",
+    "cf:dev": "npm run build && npx wrangler pages dev",
+    "cf:deploy": "npm run build && npx wrangler pages deploy"
+  },
+  "dependencies": {
+    "hono": "^4.9.0"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "wrangler": "^4.28.0"
   }
 }

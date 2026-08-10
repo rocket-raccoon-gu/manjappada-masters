@@ -1,8 +1,9 @@
 # Manjappada Masters — Club Cup
 
-Local tournament website for the Manjappada Masters football club cup.
+Tournament website for Manjappada Masters / Masters 7's Football League.
 
-**Stack:** React (Vite) · Express · MySQL (via **XAMPP**)
+**Local stack:** React (Vite) · Express · MySQL (XAMPP)  
+**Cloud (free):** Cloudflare Pages · Pages Functions (Hono) · D1
 
 ## Features
 
@@ -13,7 +14,66 @@ Local tournament website for the Manjappada Masters football club cup.
 - Top scorers leaderboard
 - Seeded sample season data
 
+---
+
+## Deploy on Cloudflare Free
+
+Cloudflare Free hosts the site + API + database. MySQL is not available on Cloudflare; production uses **D1 (SQLite)**.
+
+### 1. Prerequisites
+
+- Node.js 18+
+- A free [Cloudflare](https://dash.cloudflare.com) account
+
+### 2. Install dependencies
+
+```bash
+npm install
+npm run install:all
+```
+
+### 3. Log in to Cloudflare
+
+```bash
+npx wrangler login
+```
+
+### 4. Create the D1 database
+
+```bash
+npx wrangler d1 create manjappada_masters
+```
+
+Copy the printed `database_id` into [`wrangler.toml`](wrangler.toml) (replace the placeholder `00000000-0000-0000-0000-000000000001`).
+
+### 5. Apply schema + seed (remote)
+
+```bash
+npm run db:d1:remote
+```
+
+### 6. Deploy
+
+```bash
+npm run cf:deploy
+```
+
+Open the printed `*.pages.dev` URL. Check health at `/api/health`.
+
+### Local Cloudflare parity (optional)
+
+```bash
+npm run db:d1:local
+npm run cf:dev
+```
+
+Serves the built SPA + Functions + local D1 (default http://localhost:8788).
+
+---
+
 ## Quick start (XAMPP local DB)
+
+Use this path for classic Express + MySQL development.
 
 ### 1. Prerequisites
 
@@ -100,9 +160,21 @@ If you set a MySQL root password in XAMPP, put it in `server/.env` as `DB_PASSWO
 ## Project layout
 
 ```
-client/            React + Vite frontend
-server/            Express API
-database/          MySQL schema + seed
+client/              React + Vite frontend
+server/              Express API (local MySQL path)
+functions/           Cloudflare Pages Functions (Hono + D1 API)
+database/            MySQL schema + seed
+database/d1/         D1/SQLite schema + seed
+wrangler.toml        Cloudflare Pages + D1 config
 scripts/setup-db.sh  XAMPP DB bootstrap
-docker-compose.yml   Optional (not required with XAMPP)
+docker-compose.yml   Optional MySQL (not required with XAMPP)
 ```
+
+## npm scripts (Cloudflare)
+
+| Script | Description |
+|--------|-------------|
+| `npm run db:d1:local` | Reset + seed local D1 |
+| `npm run db:d1:remote` | Reset + seed remote D1 |
+| `npm run cf:dev` | Build + `wrangler pages dev` |
+| `npm run cf:deploy` | Build + deploy to Pages |

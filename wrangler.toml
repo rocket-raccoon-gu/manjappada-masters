@@ -1,0 +1,9 @@
+name = "manjappada-masters"
+pages_build_output_dir = "client/dist"
+compatibility_date = "2026-08-10"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "manjappada_masters"
+database_id = "938c44aa-5c9e-4653-bb3f-8e274e52596b"
