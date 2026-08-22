@@ -102,8 +102,8 @@ select {
 }
 
 .brand-logo {
-  width: 3.75rem;
-  height: 3.75rem;
+  width: 4.75rem;
+  height: 4.75rem;
   object-fit: contain;
 }
 
@@ -115,11 +115,13 @@ select {
 
 .brand-text strong {
   font-family: var(--font-display);
-  font-size: 1.45rem;
+  font-size: clamp(0.95rem, 2.2vw, 1.2rem);
   letter-spacing: 0.04em;
   font-weight: 400;
   text-transform: uppercase;
   color: var(--blue);
+  max-width: 16ch;
+  line-height: 1.05;
 }
 
 .brand-text span {
@@ -153,6 +155,23 @@ select {
 .nav-links a.active {
   color: var(--blue);
   border-bottom-color: var(--yellow);
+}
+
+.nav-links a.nav-cta {
+  margin-left: 0.35rem;
+  border: 2px solid var(--blue);
+  background: var(--yellow);
+  color: var(--blue-deep);
+  border-bottom: 2px solid var(--blue);
+  padding: 0.5rem 0.95rem;
+  box-shadow: 0 6px 16px rgba(243, 209, 23, 0.35);
+}
+
+.nav-links a.nav-cta:hover,
+.nav-links a.nav-cta.active {
+  background: var(--yellow-bright);
+  color: var(--blue-deep);
+  border-bottom-color: var(--blue);
 }
 
 .hero {
@@ -625,6 +644,345 @@ select {
   50% { opacity: 0.45; }
 }
 
+.register-hero h1 {
+  color: var(--blue);
+}
+
+.register-form {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.register-panel {
+  padding: 1.5rem 0 0.5rem;
+  border-top: 3px solid var(--yellow);
+}
+
+.register-panel h2 {
+  margin: 0 0 1rem;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--blue);
+  font-weight: 400;
+}
+
+.register-level {
+  margin-top: 1.25rem;
+  padding: 1rem 0 0.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.register-level h3 {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--blue);
+  font-weight: 400;
+}
+
+.role-level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.role-level-card {
+  border-top: 3px solid var(--yellow);
+  padding: 0.85rem 0 0.25rem;
+}
+
+.role-level-card h3 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--blue);
+  font-weight: 400;
+}
+
+.role-level-card dl {
+  margin: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.role-level-card dt {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+.role-level-card dd {
+  margin: 0.15rem 0 0;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.form-grid label,
+.player-register-fields label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.form-grid input,
+.form-grid select,
+.player-register-fields input {
+  width: 100%;
+  border: 2px solid var(--line-strong);
+  border-radius: 2px;
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+  color: var(--ink);
+  background: var(--white);
+}
+
+.form-grid input:focus,
+.form-grid select:focus,
+.player-register-fields input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0, 41, 156, 0.12);
+}
+
+.form-span {
+  grid-column: 1 / -1;
+}
+
+.team-logo-thumb {
+  width: 4.25rem;
+  height: 4.25rem;
+  object-fit: cover;
+  border: 2px solid var(--yellow);
+  background: var(--blue-mist);
+}
+
+.team-logo-thumb.large {
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+.registration-hero-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.registration-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.registration-meta > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.player-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.team-tile .muted {
+  margin-top: 0.25rem;
+  font-size: 0.88rem;
+}
+
+.logo-preview {
+  margin-top: 1rem;
+  width: 5.5rem;
+  height: 5.5rem;
+  border: 2px solid var(--line-strong);
+  overflow: hidden;
+}
+
+.logo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-register-list {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.player-register-row {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1.25rem;
+  align-items: start;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.player-register-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.player-register-heading h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--blue);
+  font-weight: 400;
+}
+
+.register-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem 0 1rem;
+}
+
+.player-id-card {
+  background:
+    repeating-linear-gradient(
+      -32deg,
+      transparent 0,
+      transparent 10px,
+      rgba(255, 255, 255, 0.03) 10px,
+      rgba(255, 255, 255, 0.03) 11px
+    ),
+    linear-gradient(165deg, #001868 0%, #00299c 55%, #0a1f5c 100%);
+  color: #fff;
+  border: 2px solid #f3d117;
+  padding: 0.85rem;
+  min-height: 100%;
+  box-shadow: 0 14px 30px rgba(0, 24, 104, 0.28);
+  animation: rise 0.5s ease both;
+}
+
+.player-id-card__title {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f3d117;
+  border: 1px solid rgba(243, 209, 23, 0.55);
+  padding: 0.35rem 0.4rem;
+}
+
+.player-id-card__region {
+  margin-top: 0.45rem;
+  background: #f3d117;
+  color: #001868;
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.35rem;
+}
+
+.player-id-card__body {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 0.7rem;
+  margin-top: 0.7rem;
+}
+
+.player-id-card__photo {
+  aspect-ratio: 3 / 4;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(243, 209, 23, 0.45);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.player-id-card__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-id-card__meta {
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+}
+
+.player-id-card__meta > div,
+.player-id-card__name {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.player-id-card__label {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f3d117;
+  font-weight: 700;
+}
+
+.player-id-card__meta strong,
+.player-id-card__name strong {
+  font-size: 0.92rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.player-id-card__name {
+  margin-top: 0.7rem;
+  background: #f3d117;
+  color: #001868;
+  text-align: center;
+  padding: 0.55rem 0.4rem 0.65rem;
+}
+
+.player-id-card__name .player-id-card__label {
+  color: rgba(0, 24, 104, 0.7);
+}
+
+.player-id-card__name strong {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.player-id-card__footer {
+  margin-top: 0.55rem;
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+
 @media (max-width: 800px) {
   .split-two {
     grid-template-columns: 1fr;
@@ -660,4 +1018,96 @@ select {
   .standings-table td:nth-child(n + 5) {
     display: none;
   }
+
+  .form-grid,
+  .player-register-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-score-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-login {
+  max-width: 28rem;
+}
+
+.admin-login label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.admin-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.admin-team-list,
+.admin-score-list {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.admin-team {
+  border-top: 3px solid var(--yellow);
+  padding: 1rem 0;
+}
+
+.admin-team-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+  flex-wrap: wrap;
+}
+
+.admin-team h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--blue);
+  font-weight: 400;
+}
+
+.admin-editor {
+  margin-top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-player-row {
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+}
+
+.admin-score-row {
+  display: grid;
+  grid-template-columns: 1.4fr 5rem auto 5rem 8rem auto;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-score-row input,
+.admin-score-row select {
+  border: 2px solid var(--line-strong);
+  padding: 0.5rem;
+  font: inherit;
+}
+
+.admin-fixture {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
 }

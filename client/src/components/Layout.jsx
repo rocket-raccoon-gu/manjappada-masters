@@ -1,4 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { api } from '../api';
+import useApi from '../hooks/useApi';
 
 const links = [
   { to: '/', label: 'Home', end: true },
@@ -8,6 +10,9 @@ const links = [
 ];
 
 export default function Layout() {
+  const settings = useApi(() => api.settings(), []);
+  const registrationOpen = settings.data?.registration_open !== false;
+
   return (
     <div className="site-shell">
       <header className="site-header">
@@ -15,7 +20,7 @@ export default function Layout() {
           <NavLink to="/" className="brand">
             <img className="brand-logo" src="/mmfl-logo.png" alt="Masters league crest" />
             <span className="brand-text">
-              <strong>Masters 7&apos;s</strong>
+              <strong>Masters 7&apos;s Football League</strong>
               <span>Manjappada Qatar</span>
             </span>
           </NavLink>
@@ -25,6 +30,11 @@ export default function Layout() {
                 {link.label}
               </NavLink>
             ))}
+            {registrationOpen && (
+              <NavLink to="/register" className="nav-cta">
+                Join Now
+              </NavLink>
+            )}
           </nav>
         </div>
       </header>
@@ -39,7 +49,7 @@ export default function Layout() {
             <img src="/mmfl-logo.png" alt="" />
             Masters 7&apos;s Football League
           </span>
-          <span>Manjappada Qatar Wing</span>
+          <span>Manjappada Qatar</span>
         </div>
       </footer>
     </div>

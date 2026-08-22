@@ -3,6 +3,9 @@ pages_build_output_dir = "client/dist"
 compatibility_date = "2026-08-10"
 compatibility_flags = ["nodejs_compat"]
 
+[vars]
+ADMIN_PASSWORD = "0000.com"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "manjappada_masters"

@@ -13,6 +13,7 @@ Tournament website for Manjappada Masters / Masters 7's Football League.
 - Teams & squad pages
 - Top scorers leaderboard
 - Seeded sample season data
+- Admin panel at `/admin` (close registration, manage teams/players, update scores)
 
 ---
 
@@ -59,6 +60,8 @@ npm run cf:deploy
 ```
 
 Open the printed `*.pages.dev` URL. Check health at `/api/health`.
+
+Admin: `/admin` — password is `ADMIN_PASSWORD` in [`wrangler.toml`](wrangler.toml) (change it before sharing).
 
 ### Local Cloudflare parity (optional)
 

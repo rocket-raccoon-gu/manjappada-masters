@@ -7,6 +7,8 @@ export default function Home() {
   const matches = useApi(() => api.matches(), []);
   const standings = useApi(() => api.standings(), []);
   const scorers = useApi(() => api.scorers(), []);
+  const settings = useApi(() => api.settings(), []);
+  const registrationOpen = settings.data?.registration_open !== false;
 
   const upcoming = (matches.data || [])
     .filter((m) => m.status === 'scheduled' || m.status === 'live')
@@ -33,11 +35,13 @@ export default function Home() {
               </p>
             </div>
             <div className="cta-row">
-              <Link className="btn btn-primary" to="/fixtures">
+              {registrationOpen && (
+                <Link className="btn btn-primary" to="/register">
+                  Join Now
+                </Link>
+              )}
+              <Link className="btn btn-ghost" to="/fixtures">
                 View fixtures
-              </Link>
-              <Link className="btn btn-ghost" to="/standings">
-                League table
               </Link>
             </div>
           </div>
