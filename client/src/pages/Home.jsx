@@ -22,7 +22,7 @@ export default function Home() {
         <img
           className="hero-banner"
           src="/mmfl-banner.jpg"
-          alt="Masters 7's Football League — Manjappada Qatar Wing presents"
+          alt="Masters 7's Football League — Manjappada Qatar Wing presents — age 35 & above, December 11"
         />
         <div className="hero-band">
           <div className="container hero-band-inner">
@@ -31,7 +31,7 @@ export default function Home() {
                 Masters <em>7&apos;s</em> Football League
               </h1>
               <p className="hero-copy">
-                Masters teams · Age 40 &amp; above · Follow fixtures, standings, and every club in the race.
+                Masters teams · Age 35 &amp; above · December 11 · Follow fixtures, standings, and every club in the race.
               </p>
             </div>
             <div className="cta-row">
