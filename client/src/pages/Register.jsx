@@ -32,6 +32,7 @@ export default function Register() {
   const registrationOpen = settings.data?.registration_open !== false;
   const [team, setTeam] = useState(initialTeam);
   const [players, setPlayers] = useState([emptyPlayer()]);
+  const [agreedToRules, setAgreedToRules] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [successId, setSuccessId] = useState(null);
@@ -79,12 +80,19 @@ export default function Register() {
   async function onSubmit(event) {
     event.preventDefault();
     setError('');
-    setSubmitting(true);
     setSuccessId(null);
+
+    if (!agreedToRules) {
+      setError('Please agree to the Rules & Regulations before submitting.');
+      return;
+    }
+
+    setSubmitting(true);
 
     try {
       const payload = {
         ...team,
+        accepted_rules: true,
         players: [...players]
           .reverse()
           .map(({ player_name, qid_number, dob, photo, position }) => ({
@@ -99,6 +107,7 @@ export default function Register() {
       setSuccessId(result.id);
       setTeam(initialTeam);
       setPlayers([emptyPlayer()]);
+      setAgreedToRules(false);
     } catch (err) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -338,10 +347,33 @@ export default function Register() {
             </div>
           </div>
 
+          <div className="register-panel rules-agree">
+            <label className="rules-agree-label">
+              <input
+                type="checkbox"
+                checked={agreedToRules}
+                onChange={(e) => setAgreedToRules(e.target.checked)}
+                required
+              />
+              <span>
+                I have read and agree to the{' '}
+                <Link to="/rules" target="_blank" rel="noreferrer">
+                  Rules &amp; Regulations (By-Laws)
+                </Link>{' '}
+                of Masters Cup 2026, including eligibility (age 35+, born on or before 31 December
+                1991) and the Team Management undertaking.
+              </span>
+            </label>
+          </div>
+
           {error && <div className="error-box">{error}</div>}
 
           <div className="register-actions">
-            <button type="submit" className="btn btn-primary" disabled={submitting}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={submitting || !agreedToRules}
+            >
               {submitting ? 'Submitting…' : 'Submit registration'}
             </button>
           </div>
