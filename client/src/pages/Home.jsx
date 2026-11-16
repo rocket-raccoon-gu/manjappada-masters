@@ -83,33 +83,37 @@ export default function Home() {
             {standings.loading && <div className="state-box">Loading table…</div>}
             {standings.error && <div className="error-box">{standings.error}</div>}
             {!standings.loading && !standings.error && (
-              <table className="standings-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Club</th>
-                    <th className="num">P</th>
-                    <th className="num">Pts</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tablePreview.map((row) => (
-                    <tr key={row.id}>
-                      <td>{row.position}</td>
-                      <td>
-                        <div className="team-cell">
-                          <span className="crest" style={{ background: row.primary_color }}>
-                            {row.short_name}
-                          </span>
-                          {row.name}
-                        </div>
-                      </td>
-                      <td className="num">{row.played}</td>
-                      <td className="num">{row.points}</td>
+              tablePreview.length ? (
+                <table className="standings-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Club</th>
+                      <th className="num">P</th>
+                      <th className="num">Pts</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {tablePreview.map((row) => (
+                      <tr key={row.id}>
+                        <td>{row.position}</td>
+                        <td>
+                          <div className="team-cell">
+                            <span className="crest" style={{ background: row.primary_color }}>
+                              {row.short_name}
+                            </span>
+                            {row.name}
+                          </div>
+                        </td>
+                        <td className="num">{row.played}</td>
+                        <td className="num">{row.points}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="muted">No standings yet — clubs will appear after the first matches.</p>
+              )
             )}
 
             <div className="section-head" style={{ marginTop: '2.5rem' }}>
@@ -121,18 +125,22 @@ export default function Home() {
             {scorers.loading && <div className="state-box">Loading scorers…</div>}
             {scorers.error && <div className="error-box">{scorers.error}</div>}
             {!scorers.loading && !scorers.error && (
-              <div className="scorer-list">
-                {topScorers.map((scorer, index) => (
-                  <div className="scorer-row" key={scorer.id}>
-                    <span className="muted">{index + 1}</span>
-                    <div>
-                      <strong>{scorer.name}</strong>
-                      <div className="muted">{scorer.team_name}</div>
+              topScorers.length ? (
+                <div className="scorer-list">
+                  {topScorers.map((scorer, index) => (
+                    <div className="scorer-row" key={scorer.id}>
+                      <span className="muted">{index + 1}</span>
+                      <div>
+                        <strong>{scorer.name}</strong>
+                        <div className="muted">{scorer.team_name}</div>
+                      </div>
+                      <strong>{scorer.goals}</strong>
                     </div>
-                    <strong>{scorer.goals}</strong>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="muted">No goals recorded yet.</p>
+              )
             )}
           </div>
         </div>
