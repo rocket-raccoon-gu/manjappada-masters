@@ -182,11 +182,14 @@ select {
 }
 
 .hero-banner {
-  width: 100%;
-  height: clamp(180px, 32vw, 360px);
-  object-fit: cover;
-  object-position: center 42%;
   display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: min(52vh, 520px);
+  height: auto;
+  margin-inline: auto;
+  object-fit: contain;
+  object-position: center center;
   animation: banner-in 1s ease-out both;
 }
 
@@ -1088,8 +1091,7 @@ select {
   }
 
   .hero-banner {
-    height: clamp(150px, 48vw, 240px);
-    object-position: center 40%;
+    max-height: min(42vh, 340px);
   }
 
   .hero-band-inner {
