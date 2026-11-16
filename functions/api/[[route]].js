@@ -453,8 +453,13 @@ app.post('/registrations', async (c) => {
     captain_mobile,
     captain_email = null,
     team_logo = null,
+    accepted_rules = false,
     players = [],
   } = body;
+
+  if (!accepted_rules) {
+    return c.json({ error: 'You must agree to the Rules & Regulations to register' }, 400);
+  }
 
   if (
     !team_name ||
