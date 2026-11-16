@@ -10,7 +10,7 @@ export default function Teams() {
       <div className="container">
         <div className="page-hero">
           <h1>Teams</h1>
-          <p>Joined Masters 7&apos;s squads from Manjappada Qatar — age 40 &amp; above.</p>
+          <p>Joined Masters 7&apos;s squads from Manjappada Qatar — age 35 &amp; above.</p>
         </div>
 
         {loading && <div className="state-box">Loading teams…</div>}
