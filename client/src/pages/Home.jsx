@@ -43,6 +43,9 @@ export default function Home() {
               <Link className="btn btn-ghost" to="/fixtures">
                 View fixtures
               </Link>
+              <Link className="btn btn-ghost" to="/rules">
+                Rules
+              </Link>
             </div>
           </div>
         </div>
