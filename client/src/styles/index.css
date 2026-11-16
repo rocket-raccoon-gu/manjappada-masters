@@ -705,6 +705,116 @@ select {
   max-width: 62ch;
 }
 
+.rules-explain {
+  margin: 2rem 0 2.25rem;
+}
+
+.rules-explain-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.15rem;
+}
+
+.rules-explain-card {
+  overflow: hidden;
+  border: 2px solid var(--line-strong);
+  background: var(--white);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.rules-explain-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--yellow);
+  box-shadow: 0 14px 28px rgba(0, 24, 104, 0.12);
+}
+
+.rules-explain-media {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--blue-deep);
+}
+
+.rules-explain-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.55s ease;
+}
+
+.rules-explain-card:hover .rules-explain-media img {
+  transform: scale(1.04);
+}
+
+.rules-explain-body {
+  padding: 1rem 1.05rem 1.15rem;
+}
+
+.rules-explain-body h3 {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--blue);
+  font-weight: 400;
+}
+
+.rules-explain-body ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--ink-soft);
+  display: grid;
+  gap: 0.35rem;
+}
+
+.rules-explain-body li {
+  line-height: 1.4;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.65s ease,
+    transform 0.65s ease;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.35) 45%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.55s ease;
+  pointer-events: none;
+}
+
+.btn:hover::after {
+  transform: translateX(120%);
+}
+
+.match-row,
+.team-list a,
+.admin-team {
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.match-row:hover {
+  transform: translateX(4px);
+}
+
 .split-two {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
@@ -1119,6 +1229,27 @@ select {
 
   .rules-facts {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .rules-explain-grid {
+    grid-template-columns: 1fr;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .btn::after,
+    .rules-explain-card,
+    .rules-explain-media img,
+    .match-row {
+      transition: none !important;
+      animation: none !important;
+      transform: none !important;
+    }
   }
 
   .match-row {

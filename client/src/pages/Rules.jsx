@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom';
+import useReveal from '../hooks/useReveal.js';
+
 const DOCX_HREF = '/docs/Masters-Cup-2026-Rules-Regulations-By-Laws-Ver2.0.docx';
 
 const facts = [
@@ -5,6 +8,53 @@ const facts = [
   { label: 'Date', value: '11 December 2026' },
   { label: 'Kickoff', value: '03:00 PM' },
   { label: 'Registration', value: '70135305' },
+];
+
+const explainers = [
+  {
+    title: '7’s knockout format',
+    image: '/rules/format.jpg',
+    alt: 'Seven footballers and a knockout bracket illustration',
+    points: [
+      '6 outfield + 1 goalkeeper on the pitch',
+      'Single-elimination — a loss ends the run',
+      'Up to 16 teams; byes drawn by lot if needed',
+      'Path: Round of 16 → Quarters → Semis → Final',
+    ],
+  },
+  {
+    title: 'Who can play',
+    image: '/rules/eligibility.jpg',
+    alt: 'Age eligibility and Qatar ID illustration',
+    points: [
+      'Age 35+ — born on or before 31 Dec 1991',
+      'Qatar ID / passport DOB is final',
+      'Valid QID or residence permit; Indian nationals only',
+      'One team only; medical fitness confirmed by each player',
+    ],
+  },
+  {
+    title: 'Match day',
+    image: '/rules/matchday.jpg',
+    alt: 'Match day check-in clipboard and whistle illustration',
+    points: [
+      'Playing list of 10 (7 + 3) before kickoff',
+      'Report 30 minutes early with Qatar ID',
+      'Minimum 5 players to start; 10-minute grace then walkover',
+      'Team jerseys, turf shoes preferred — no steel studs',
+    ],
+  },
+  {
+    title: 'Fair play on the field',
+    image: '/rules/fairplay.jpg',
+    alt: 'Fair play cards, whistle and football illustration',
+    points: [
+      'No offside; unlimited rolling substitutions',
+      'No sliding tackles — free kick and possible card',
+      'Draws decided by penalties (final has short ET first)',
+      'Referee decisions are final — no video review',
+    ],
+  },
 ];
 
 const sections = [
@@ -119,10 +169,12 @@ const sections = [
 ];
 
 export default function Rules() {
+  useReveal();
+
   return (
-    <section className="section">
+    <section className="section rules-page">
       <div className="container">
-        <div className="page-hero rules-hero">
+        <div className="page-hero rules-hero reveal">
           <div>
             <h1>Rules &amp; Regulations</h1>
             <p>
@@ -136,23 +188,64 @@ export default function Rules() {
         </div>
 
         <div className="rules-facts">
-          {facts.map((fact) => (
-            <div className="rules-fact" key={fact.label}>
+          {facts.map((fact, index) => (
+            <div
+              className="rules-fact reveal"
+              style={{ '--reveal-delay': `${index * 70}ms` }}
+              key={fact.label}
+            >
               <span className="muted">{fact.label}</span>
               <strong>{fact.value}</strong>
             </div>
           ))}
         </div>
 
-        <p className="muted rules-note">
+        <div className="rules-explain reveal">
+          <div className="section-head">
+            <div>
+              <h2>Rules at a glance</h2>
+              <p>Four picture guides before the full by-laws text.</p>
+            </div>
+            <Link className="muted" to="/register">
+              Register a team →
+            </Link>
+          </div>
+          <div className="rules-explain-grid">
+            {explainers.map((card, index) => (
+              <article
+                className="rules-explain-card reveal"
+                style={{ '--reveal-delay': `${120 + index * 90}ms` }}
+                key={card.title}
+              >
+                <div className="rules-explain-media">
+                  <img src={card.image} alt={card.alt} loading="lazy" />
+                </div>
+                <div className="rules-explain-body">
+                  <h3>{card.title}</h3>
+                  <ul>
+                    {card.points.map((point) => (
+                      <li key={point}>{point}</li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <p className="muted rules-note reveal">
           Items in [brackets] in the official document are defaults or details the Organizing
           Committee may confirm. This page summarises Ver 2.0 — download the DOCX for the signed
           undertaking form.
         </p>
 
         <div className="rules-sections">
-          {sections.map((section) => (
-            <article className="rules-section" key={section.title}>
+          {sections.map((section, index) => (
+            <article
+              className="rules-section reveal"
+              style={{ '--reveal-delay': `${(index % 4) * 40}ms` }}
+              key={section.title}
+            >
               <h2>{section.title}</h2>
               <ul>
                 {section.items.map((item) => (
@@ -163,16 +256,21 @@ export default function Rules() {
           ))}
         </div>
 
-        <div className="rules-undertaking">
+        <div className="rules-undertaking reveal">
           <h2>Undertaking by Team Management</h2>
           <p>
             Team managers accept fixture responsibilities, agree to these rules, acknowledge play is
             at own risk, and confirm every player is aged 35+ (born on or before 31 December 1991)
             with genuine documents. Sign the undertaking page in the downloaded By-Laws.
           </p>
-          <a className="btn btn-ghost" href={DOCX_HREF} download>
-            Get the full Ver 2.0 document
-          </a>
+          <div className="cta-row">
+            <a className="btn btn-ghost" href={DOCX_HREF} download>
+              Get the full Ver 2.0 document
+            </a>
+            <Link className="btn btn-primary" to="/register">
+              Join Now
+            </Link>
+          </div>
         </div>
       </div>
     </section>

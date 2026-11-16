@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import useApi from '../hooks/useApi';
+import useReveal from '../hooks/useReveal.js';
 import MatchRow from '../components/MatchRow.jsx';
 
 export default function Home() {
+  useReveal();
   const matches = useApi(() => api.matches(), []);
   const standings = useApi(() => api.standings(), []);
   const scorers = useApi(() => api.scorers(), []);
@@ -52,7 +54,7 @@ export default function Home() {
       </section>
 
       <section className="section">
-        <div className="container split-two">
+        <div className="container split-two reveal">
           <div>
             <div className="section-head">
               <div>
