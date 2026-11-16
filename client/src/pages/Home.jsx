@@ -3,6 +3,7 @@ import { api } from '../api';
 import useApi from '../hooks/useApi';
 import useReveal from '../hooks/useReveal.js';
 import MatchRow from '../components/MatchRow.jsx';
+import TournamentReel from '../components/TournamentReel.jsx';
 
 export default function Home() {
   useReveal();
@@ -15,7 +16,7 @@ export default function Home() {
   const upcoming = (matches.data || [])
     .filter((m) => m.status === 'scheduled' || m.status === 'live')
     .slice(0, 4);
-  const tablePreview = (standings.data || []).slice(0, 5);
+  const tablePreview = (standings.data || []).filter((row) => row.played > 0).slice(0, 5);
   const topScorers = (scorers.data || []).slice(0, 5);
 
   return (
@@ -52,6 +53,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <TournamentReel />
 
       <section className="section">
         <div className="container split-two reveal">
