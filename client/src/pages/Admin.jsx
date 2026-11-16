@@ -160,6 +160,31 @@ export default function Admin() {
             >
               {registrationOpen ? 'Close registration' : 'Open registration'}
             </button>
+
+            <h2 style={{ marginTop: '2rem' }}>Competition data</h2>
+            <p className="muted">
+              Remove all clubs, players, fixtures, and goals from the live table. Registrations are kept.
+            </p>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              disabled={busy}
+              onClick={() => {
+                if (
+                  !window.confirm(
+                    'Wipe all clubs, players, fixtures, and goals? This cannot be undone.'
+                  )
+                ) {
+                  return;
+                }
+                run(async () => {
+                  await api.wipeSample();
+                  setNotice('Competition sample data cleared.');
+                });
+              }}
+            >
+              Wipe competition data
+            </button>
           </div>
         )}
 

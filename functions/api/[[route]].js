@@ -799,4 +799,24 @@ app.delete('/admin/matches/:id', async (c) => {
   return c.json({ ok: true });
 });
 
+app.post('/admin/wipe-sample', async (c) => {
+  const denied = await requireAdmin(c);
+  if (denied) return denied;
+
+  await c.env.DB.prepare('DELETE FROM goals').run();
+  await c.env.DB.prepare('DELETE FROM matches').run();
+  await c.env.DB.prepare('DELETE FROM players').run();
+  await c.env.DB.prepare('DELETE FROM teams').run();
+  await c.env.DB.prepare('DELETE FROM tournament').run();
+  await c.env.DB
+    .prepare(
+      `INSERT INTO tournament (name, season, venue, start_date, end_date, status)
+       VALUES (?, ?, ?, ?, ?, ?)`
+    )
+    .bind("Masters 7's Football League", '2026', 'Doha', '2026-01-01', '2026-12-31', 'upcoming')
+    .run();
+
+  return c.json({ ok: true, cleared: ['goals', 'matches', 'players', 'teams'] });
+});
+
 export const onRequest = handle(app);

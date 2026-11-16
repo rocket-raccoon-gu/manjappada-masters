@@ -12,8 +12,8 @@ Tournament website for Manjappada Masters / Masters 7's Football League.
 - Live league table (points, GD, GF)
 - Teams & squad pages
 - Top scorers leaderboard
-- Seeded sample season data
 - Admin panel at `/admin` (close registration, manage teams/players, update scores)
+- Empty season by default — add clubs and fixtures from admin / registration
 
 ---
 
@@ -51,6 +51,12 @@ Copy the printed `database_id` into [`wrangler.toml`](wrangler.toml) (replace th
 
 ```bash
 npm run db:d1:remote
+```
+
+Seed creates the season shell only (no demo clubs/fixtures). To clear competition data later:
+
+```bash
+npm run db:d1:wipe
 ```
 
 ### 6. Deploy

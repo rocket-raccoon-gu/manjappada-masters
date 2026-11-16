@@ -94,4 +94,5 @@ export const api = {
   createMatch: (body) => adminRequest('/api/admin/matches', { method: 'POST', body }),
   updateMatch: (id, body) => adminRequest(`/api/admin/matches/${id}`, { method: 'PATCH', body }),
   deleteMatch: (id) => adminRequest(`/api/admin/matches/${id}`, { method: 'DELETE' }),
+  wipeSample: () => adminRequest('/api/admin/wipe-sample', { method: 'POST' }),
 };
