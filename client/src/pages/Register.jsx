@@ -156,7 +156,8 @@ export default function Register() {
           <h1>Join Now</h1>
           <p>
             Masters 7&apos;s Football League · Manjappada Qatar — submit your team details and player
-            ID cards.
+            ID cards. Review the{' '}
+            <Link to="/rules">Rules &amp; Regulations</Link> before registering.
           </p>
         </div>
 
