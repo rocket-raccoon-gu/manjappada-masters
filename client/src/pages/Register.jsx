@@ -5,7 +5,7 @@ import useApi from '../hooks/useApi';
 import PlayerCard from '../components/PlayerCard.jsx';
 import { compressImage } from '../utils/image.js';
 
-const MAX_PLAYERS = 11;
+const MAX_PLAYERS = 10;
 
 const emptyPlayer = () => ({
   key: crypto.randomUUID(),
@@ -156,7 +156,8 @@ export default function Register() {
           <h1>Join Now</h1>
           <p>
             Masters 7&apos;s Football League · Manjappada Qatar — submit your team details and player
-            ID cards.
+            ID cards. Review the{' '}
+            <Link to="/rules">Rules &amp; Regulations</Link> before registering.
           </p>
         </div>
 

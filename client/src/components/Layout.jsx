@@ -7,6 +7,7 @@ const links = [
   { to: '/fixtures', label: 'Fixtures' },
   { to: '/standings', label: 'Standings' },
   { to: '/teams', label: 'Teams' },
+  { to: '/rules', label: 'Rules' },
 ];
 
 export default function Layout() {
@@ -49,7 +50,10 @@ export default function Layout() {
             <img src="/mmfl-logo.png" alt="" />
             Masters 7&apos;s Football League
           </span>
-          <span>Manjappada Qatar</span>
+          <nav className="footer-links" aria-label="Footer">
+            <NavLink to="/rules">Rules &amp; Regulations</NavLink>
+            <span>Manjappada Qatar</span>
+          </nav>
         </div>
       </footer>
     </div>
