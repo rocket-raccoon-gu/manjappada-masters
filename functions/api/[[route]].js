@@ -487,6 +487,9 @@ app.post('/registrations', async (c) => {
     return c.json({ error: 'A team can have a maximum of 10 players' }, 400);
   }
 
+  const QID_RE = /^\d{11}$/;
+  const MAX_DOB = '1991-12-31';
+
   for (const [index, player] of players.entries()) {
     if (!player.player_name || !player.qid_number || !player.dob) {
       return c.json(
@@ -494,6 +497,22 @@ app.post('/registrations', async (c) => {
         400
       );
     }
+    const qid = String(player.qid_number).trim();
+    if (!QID_RE.test(qid)) {
+      return c.json(
+        { error: `Player ${index + 1}: QID number must be exactly 11 digits` },
+        400
+      );
+    }
+    if (String(player.dob) > MAX_DOB) {
+      return c.json(
+        {
+          error: `Player ${index + 1}: date of birth must be on or before 31 December 1991`,
+        },
+        400
+      );
+    }
+    player.qid_number = qid;
   }
 
   const insertTeam = await c.env.DB.prepare(

@@ -6,6 +6,22 @@ import PlayerCard from '../components/PlayerCard.jsx';
 import { compressImage } from '../utils/image.js';
 
 const MAX_PLAYERS = 10;
+const QID_LENGTH = 11;
+const MAX_DOB = '1991-12-31'; // Masters Cup: age 35+ (born on or before 31 Dec 1991)
+
+function normalizeQid(value) {
+  return String(value || '')
+    .replace(/\D/g, '')
+    .slice(0, QID_LENGTH);
+}
+
+function isValidQid(value) {
+  return new RegExp(`^\\d{${QID_LENGTH}}$`).test(String(value || ''));
+}
+
+function isEligibleDob(value) {
+  return Boolean(value) && value <= MAX_DOB;
+}
 
 const emptyPlayer = () => ({
   key: crypto.randomUUID(),
@@ -87,6 +103,18 @@ export default function Register() {
       return;
     }
 
+    for (const [index, player] of players.entries()) {
+      const n = index + 1;
+      if (!isValidQid(player.qid_number)) {
+        setError(`Player ${n}: QID number must be exactly ${QID_LENGTH} digits.`);
+        return;
+      }
+      if (!isEligibleDob(player.dob)) {
+        setError(`Player ${n}: date of birth must be on or before 31 December 1991.`);
+        return;
+      }
+    }
+
     setSubmitting(true);
 
     try {
@@ -97,7 +125,7 @@ export default function Register() {
           .reverse()
           .map(({ player_name, qid_number, dob, photo, position }) => ({
             player_name,
-            qid_number,
+            qid_number: normalizeQid(qid_number),
             dob,
             photo: photo || null,
             position: position || null,
@@ -303,8 +331,16 @@ export default function Register() {
                         QID Number
                         <input
                           required
+                          inputMode="numeric"
+                          pattern={`\\d{${QID_LENGTH}}`}
+                          maxLength={QID_LENGTH}
+                          minLength={QID_LENGTH}
+                          title={`Exactly ${QID_LENGTH} digits`}
+                          placeholder="11 digits"
                           value={player.qid_number}
-                          onChange={(e) => updatePlayer(player.key, 'qid_number', e.target.value)}
+                          onChange={(e) =>
+                            updatePlayer(player.key, 'qid_number', normalizeQid(e.target.value))
+                          }
                         />
                       </label>
                       <label>
@@ -312,6 +348,8 @@ export default function Register() {
                         <input
                           required
                           type="date"
+                          max={MAX_DOB}
+                          title="Born on or before 31 December 1991"
                           value={player.dob}
                           onChange={(e) => updatePlayer(player.key, 'dob', e.target.value)}
                         />
