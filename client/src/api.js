@@ -57,8 +57,12 @@ export const api = {
   scorers: () => request('/api/players/scorers'),
   health: () => request('/api/health'),
   settings: () => request('/api/settings'),
-  registrations: () => request('/api/registrations'),
-  registration: (id) => request(`/api/registrations/${id}`),
+  registrations: () =>
+    getAdminToken() ? adminRequest('/api/registrations') : request('/api/registrations'),
+  registration: (id) =>
+    getAdminToken()
+      ? adminRequest(`/api/registrations/${id}`)
+      : request(`/api/registrations/${id}`),
   registerTeam: async (payload) => {
     const response = await fetch(`${API_BASE}/api/registrations`, {
       method: 'POST',

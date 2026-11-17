@@ -1,6 +1,28 @@
 import { Hono } from 'hono';
 import { handle } from 'hono/cloudflare-pages';
-import { createAdminToken, requireAdmin, getSetting, setSetting } from '../_lib/auth.js';
+import {
+  createAdminToken,
+  requireAdmin,
+  getSetting,
+  setSetting,
+  verifyAdminToken,
+  readBearer,
+} from '../_lib/auth.js';
+
+function stripPublicContacts(registration) {
+  const {
+    contact_number: _contact,
+    email: _email,
+    captain_mobile: _captainMobile,
+    captain_email: _captainEmail,
+    ...safe
+  } = registration;
+  return safe;
+}
+
+async function requestIsAdmin(c) {
+  return verifyAdminToken(c.env.ADMIN_PASSWORD, readBearer(c));
+}
 
 const MATCH_STATUSES = ['scheduled', 'live', 'finished', 'postponed'];
 
@@ -404,11 +426,15 @@ app.get('/registrations', async (c) => {
      FROM team_registrations r
      ORDER BY r.id DESC`
   ).all();
+  const admin = await requestIsAdmin(c);
   return c.json(
-    results.map((row) => ({
-      ...row,
-      player_count: Number(row.player_count),
-    }))
+    results.map((row) => {
+      const mapped = {
+        ...row,
+        player_count: Number(row.player_count),
+      };
+      return admin ? mapped : stripPublicContacts(mapped);
+    })
   );
 });
 
@@ -435,7 +461,9 @@ app.get('/registrations/:id', async (c) => {
     .bind(id)
     .all();
 
-  return c.json({ ...registration, players });
+  const payload = { ...registration, players };
+  const admin = await requestIsAdmin(c);
+  return c.json(admin ? payload : stripPublicContacts(payload));
 });
 
 app.post('/registrations', async (c) => {
