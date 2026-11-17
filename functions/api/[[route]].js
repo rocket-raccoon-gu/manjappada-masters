@@ -489,6 +489,16 @@ app.post('/registrations', async (c) => {
 
   const QID_RE = /^\d{11}$/;
   const MAX_DOB = '1991-12-31';
+  const normalizePhone = (value) => String(value || '').replace(/\D/g, '');
+
+  const managerPhone = normalizePhone(contact_number);
+  const captainPhone = normalizePhone(captain_mobile);
+  if (managerPhone.length < 8) {
+    return c.json({ error: 'Manager mobile number is invalid' }, 400);
+  }
+  if (captainPhone.length < 8) {
+    return c.json({ error: 'Captain mobile number is invalid' }, 400);
+  }
 
   for (const [index, player] of players.entries()) {
     if (!player.player_name || !player.qid_number || !player.dob) {
@@ -515,6 +525,56 @@ app.post('/registrations', async (c) => {
     player.qid_number = qid;
   }
 
+  const qids = players.map((player) => player.qid_number);
+  if (new Set(qids).size !== qids.length) {
+    return c.json({ error: 'Each player must have a unique QID number on the team' }, 400);
+  }
+
+  const existingTeams = await c.env.DB.prepare(
+    `SELECT team_name, contact_number, captain_mobile FROM team_registrations`
+  ).all();
+
+  for (const row of existingTeams.results || []) {
+    const existingManager = normalizePhone(row.contact_number);
+    const existingCaptain = normalizePhone(row.captain_mobile);
+    if (managerPhone && (managerPhone === existingManager || managerPhone === existingCaptain)) {
+      return c.json(
+        {
+          error: `Manager mobile number is already registered with team "${row.team_name}"`,
+        },
+        409
+      );
+    }
+    if (captainPhone && (captainPhone === existingManager || captainPhone === existingCaptain)) {
+      return c.json(
+        {
+          error: `Captain mobile number is already registered with team "${row.team_name}"`,
+        },
+        409
+      );
+    }
+  }
+
+  for (const [index, qid] of qids.entries()) {
+    const taken = await c.env.DB.prepare(
+      `SELECT rp.player_name, tr.team_name
+       FROM registration_players rp
+       JOIN team_registrations tr ON tr.id = rp.registration_id
+       WHERE rp.qid_number = ?
+       LIMIT 1`
+    )
+      .bind(qid)
+      .first();
+    if (taken) {
+      return c.json(
+        {
+          error: `Player ${index + 1}: QID ${qid} is already registered (${taken.player_name} / ${taken.team_name})`,
+        },
+        409
+      );
+    }
+  }
+
   const insertTeam = await c.env.DB.prepare(
     `INSERT INTO team_registrations
       (team_name, manager_name, contact_number, email, captain_name, captain_mobile, captain_email, team_logo)
@@ -523,10 +583,10 @@ app.post('/registrations', async (c) => {
     .bind(
       team_name,
       manager_name,
-      contact_number,
+      managerPhone,
       email,
       captain_name,
-      captain_mobile,
+      captainPhone,
       captain_email,
       team_logo
     )

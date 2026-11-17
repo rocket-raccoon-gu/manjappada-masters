@@ -23,6 +23,10 @@ function isEligibleDob(value) {
   return Boolean(value) && value <= MAX_DOB;
 }
 
+function normalizePhone(value) {
+  return String(value || '').replace(/\D/g, '').slice(0, 15);
+}
+
 const emptyPlayer = () => ({
   key: crypto.randomUUID(),
   player_name: '',
@@ -103,6 +107,18 @@ export default function Register() {
       return;
     }
 
+    const managerPhone = normalizePhone(team.contact_number);
+    const captainPhone = normalizePhone(team.captain_mobile);
+    if (managerPhone.length < 8) {
+      setError('Manager mobile number must be at least 8 digits.');
+      return;
+    }
+    if (captainPhone.length < 8) {
+      setError('Captain mobile number must be at least 8 digits.');
+      return;
+    }
+
+    const seenQids = new Set();
     for (const [index, player] of players.entries()) {
       const n = index + 1;
       if (!isValidQid(player.qid_number)) {
@@ -113,6 +129,11 @@ export default function Register() {
         setError(`Player ${n}: date of birth must be on or before 31 December 1991.`);
         return;
       }
+      if (seenQids.has(player.qid_number)) {
+        setError(`Player ${n}: QID number is duplicated on this team form.`);
+        return;
+      }
+      seenQids.add(player.qid_number);
     }
 
     setSubmitting(true);
@@ -120,6 +141,8 @@ export default function Register() {
     try {
       const payload = {
         ...team,
+        contact_number: managerPhone,
+        captain_mobile: captainPhone,
         accepted_rules: true,
         players: [...players]
           .reverse()
@@ -235,8 +258,12 @@ export default function Register() {
                   Mobile Number
                   <input
                     required
+                    inputMode="numeric"
+                    maxLength={15}
+                    placeholder="Digits only"
+                    title="Must be unique across all registrations"
                     value={team.contact_number}
-                    onChange={(e) => updateTeam('contact_number', e.target.value)}
+                    onChange={(e) => updateTeam('contact_number', normalizePhone(e.target.value))}
                   />
                 </label>
                 <label className="form-span">
@@ -266,8 +293,12 @@ export default function Register() {
                   Mobile Number
                   <input
                     required
+                    inputMode="numeric"
+                    maxLength={15}
+                    placeholder="Digits only"
+                    title="Must be unique across all registrations"
                     value={team.captain_mobile}
-                    onChange={(e) => updateTeam('captain_mobile', e.target.value)}
+                    onChange={(e) => updateTeam('captain_mobile', normalizePhone(e.target.value))}
                   />
                 </label>
                 <label className="form-span">
