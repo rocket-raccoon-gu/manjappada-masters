@@ -483,8 +483,8 @@ app.post('/registrations', async (c) => {
     return c.json({ error: 'At least one player is required' }, 400);
   }
 
-  if (players.length > 11) {
-    return c.json({ error: 'A team can have a maximum of 11 players' }, 400);
+  if (players.length > 10) {
+    return c.json({ error: 'A team can have a maximum of 10 players' }, 400);
   }
 
   for (const [index, player] of players.entries()) {
