@@ -41,14 +41,20 @@ function normalizeKickoff(value) {
 }
 
 async function getTournamentId(db) {
-  const row = await db.prepare('SELECT id FROM tournament ORDER BY id DESC LIMIT 1').first();
-  if (row) return row.id;
+  const TOURNAMENT_NAME = 'Masters 7s Football Cup';
+  const row = await db.prepare('SELECT id, name FROM tournament ORDER BY id DESC LIMIT 1').first();
+  if (row) {
+    if (row.name !== TOURNAMENT_NAME) {
+      await db.prepare('UPDATE tournament SET name = ? WHERE id = ?').bind(TOURNAMENT_NAME, row.id).run();
+    }
+    return row.id;
+  }
   const created = await db
     .prepare(
       `INSERT INTO tournament (name, season, venue, start_date, end_date, status)
        VALUES (?, ?, ?, ?, ?, ?)`
     )
-    .bind("Masters 7's Football League", '2026', 'Doha', '2026-01-01', '2026-12-31', 'live')
+    .bind(TOURNAMENT_NAME, '2026', 'Doha', '2026-01-01', '2026-12-31', 'live')
     .run();
   return created.meta.last_row_id;
 }
