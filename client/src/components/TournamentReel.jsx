@@ -6,7 +6,7 @@ const SLIDES = [
     src: '/motion/kickoff.jpg',
     eyebrow: '11 December · Doha',
     title: 'Night kickoff energy',
-    copy: 'Floodlights up for Masters Cup 2026 — 7’s knockout under the Qatar sky.',
+    copy: 'Floodlights up for Masters 7s Football Cup 2026 — knockout under the Qatar sky.',
   },
   {
     src: '/motion/celebrate.jpg',
@@ -41,7 +41,7 @@ export default function TournamentReel() {
     <section
       className="motion-reel reveal"
       aria-roledescription="carousel"
-      aria-label="Masters Cup motion highlights"
+      aria-label="Masters 7s Football Cup motion highlights"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

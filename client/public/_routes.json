@@ -1,5 +1,5 @@
 {
   "version": 1,
   "include": ["/*"],
-  "exclude": ["/assets/*", "/mmfl-logo.png", "/mmfl-banner.jpg", "/favicon.ico"]
+  "exclude": ["/assets/*", "/mmfl-logo.png", "/mmfl-logo.jpg", "/mmfl-banner.jpg", "/favicon.ico"]
 }

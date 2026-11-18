@@ -61,7 +61,7 @@ const sections = [
   {
     title: '1. Introduction',
     items: [
-      '1.1 Manjappada Qatar Wing (KBFC Supporters Club), the Organizer, hosts Masters Cup 2026 — a 7’s knockout tournament for players aged 35 and above.',
+      '1.1 Manjappada Qatar Wing (KBFC Supporters Club), the Organizer, hosts Masters 7s Football Cup 2026 — a 7’s knockout tournament for players aged 35 and above.',
       '1.2 The Organizing Committee may amend rules or match schedules.',
       '1.3 The fixture draw is held with a Team Manager or representative from each team present.',
     ],
@@ -178,7 +178,7 @@ export default function Rules() {
           <div>
             <h1>Rules &amp; Regulations</h1>
             <p>
-              Masters Cup 2026 By-Laws · 7&apos;s knockout · Age 35 and above · Manjappada Qatar Wing
+              Masters 7s Football Cup 2026 By-Laws · 7&apos;s knockout · Age 35 and above · Manjappada Qatar Wing
               (KBFC Supporters Club)
             </p>
           </div>

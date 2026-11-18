@@ -7,7 +7,7 @@ import { compressImage } from '../utils/image.js';
 
 const MAX_PLAYERS = 10;
 const QID_LENGTH = 11;
-const MAX_DOB = '1991-12-31'; // Masters Cup: age 35+ (born on or before 31 Dec 1991)
+const MAX_DOB = '1991-12-31'; // Masters 7s Football Cup: age 35+ (born on or before 31 Dec 1991)
 
 function normalizeQid(value) {
   return String(value || '')
@@ -219,8 +219,8 @@ export default function Register() {
           <div className="page-hero">
             <h1>Registration received</h1>
             <p>
-              Team registration #{successId} is saved. We will review your squad for Masters 7&apos;s
-              Football League.
+              Team registration #{successId} is saved. We will review your squad for Masters 7s
+              Football Cup.
             </p>
           </div>
           <div className="cta-row">
@@ -245,7 +245,7 @@ export default function Register() {
         <div className="page-hero register-hero">
           <h1>Join Now</h1>
           <p>
-            Masters 7&apos;s Football League · Manjappada Qatar — submit your team details and player
+            Masters 7s Football Cup · Manjappada Qatar — submit your team details and player
             ID cards.
           </p>
         </div>
@@ -499,7 +499,7 @@ export default function Register() {
                 <Link to="/rules" target="_blank" rel="noreferrer">
                   Rules &amp; Regulations (By-Laws)
                 </Link>{' '}
-                of Masters Cup 2026, including eligibility (age 35+, born on or before 31 December
+                of Masters 7s Football Cup 2026, including eligibility (age 35+, born on or before 31 December
                 1991) and the Team Management undertaking.
               </span>
             </label>

@@ -25,7 +25,7 @@ export default function Fixtures() {
       <div className="container">
         <div className="page-hero">
           <h1>Fixtures</h1>
-          <p>Every scheduled kickoff, live game, and finished result in the Masters 7&apos;s.</p>
+          <p>Every scheduled kickoff, live game, and finished result in Masters 7s Football Cup.</p>
         </div>
 
         <div className="filter-row">
