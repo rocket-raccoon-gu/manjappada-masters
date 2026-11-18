@@ -45,17 +45,28 @@ const initialTeam = {
   captain_mobile: '',
   captain_email: '',
   team_logo: '',
+  payment_receipt: '',
 };
 
 export default function Register() {
   const settings = useApi(() => api.settings(), []);
   const registrationOpen = settings.data?.registration_open !== false;
   const [team, setTeam] = useState(initialTeam);
-  const [players, setPlayers] = useState([emptyPlayer()]);
+  const [players, setPlayers] = useState([]);
   const [agreedToRules, setAgreedToRules] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [successId, setSuccessId] = useState(null);
+
+  const managerCaptainReady = Boolean(
+    team.manager_name.trim() &&
+      normalizePhone(team.contact_number).length >= 8 &&
+      team.email.trim() &&
+      team.captain_name.trim() &&
+      normalizePhone(team.captain_mobile).length >= 8 &&
+      team.captain_email.trim()
+  );
+  const paymentReady = Boolean(team.payment_receipt);
 
   function updateTeam(field, value) {
     setTeam((prev) => ({ ...prev, [field]: value }));
@@ -89,7 +100,25 @@ export default function Register() {
     }
   }
 
+  async function onPaymentReceiptChange(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const receipt = await compressImage(file, { maxWidth: 1200, quality: 0.72 });
+      updateTeam('payment_receipt', receipt);
+      setError('');
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  function clearPaymentReceipt() {
+    updateTeam('payment_receipt', '');
+    setPlayers([]);
+  }
+
   function addPlayer() {
+    if (!paymentReady) return;
     setPlayers((prev) => (prev.length >= MAX_PLAYERS ? prev : [emptyPlayer(), ...prev]));
   }
 
@@ -115,6 +144,14 @@ export default function Register() {
     }
     if (captainPhone.length < 8) {
       setError('Captain mobile number must be at least 8 digits.');
+      return;
+    }
+    if (!team.payment_receipt) {
+      setError('Upload the payment receipt or screenshot before adding players and submitting.');
+      return;
+    }
+    if (!players.length) {
+      setError('Add at least one player after uploading the payment receipt.');
       return;
     }
 
@@ -143,6 +180,7 @@ export default function Register() {
         ...team,
         contact_number: managerPhone,
         captain_mobile: captainPhone,
+        payment_receipt: team.payment_receipt,
         accepted_rules: true,
         players: [...players]
           .reverse()
@@ -157,7 +195,7 @@ export default function Register() {
       const result = await api.registerTeam(payload);
       setSuccessId(result.id);
       setTeam(initialTeam);
-      setPlayers([emptyPlayer()]);
+      setPlayers([]);
       setAgreedToRules(false);
     } catch (err) {
       setError(err.message || 'Registration failed');
@@ -315,106 +353,150 @@ export default function Register() {
           </div>
 
           <div className="register-panel">
-            <div className="section-head">
-              <div>
-                <h2>Players</h2>
-                <p>
-                  Add each player — the ID card updates as you type. Maximum {MAX_PLAYERS} players
-                  per team{players.length >= MAX_PLAYERS ? ' (limit reached).' : `.`}
-                </p>
-              </div>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={addPlayer}
-                disabled={players.length >= MAX_PLAYERS}
-              >
-                Add player
-              </button>
-            </div>
-
-            <div className="player-register-list">
-              {players.map((player, index) => (
-                <div className="player-register-row" key={player.key}>
-                  <div className="player-register-fields">
-                    <div className="player-register-heading">
-                      <h3>Player {index + 1}</h3>
-                      {players.length > 1 && (
-                        <button
-                          type="button"
-                          className="chip"
-                          onClick={() => removePlayer(player.key)}
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                    <div className="form-grid">
-                      <label>
-                        Player Name
-                        <input
-                          required
-                          value={player.player_name}
-                          onChange={(e) => updatePlayer(player.key, 'player_name', e.target.value)}
-                        />
-                      </label>
-                      <label>
-                        QID Number
-                        <input
-                          required
-                          inputMode="numeric"
-                          pattern={`\\d{${QID_LENGTH}}`}
-                          maxLength={QID_LENGTH}
-                          minLength={QID_LENGTH}
-                          title={`Exactly ${QID_LENGTH} digits`}
-                          placeholder="11 digits"
-                          value={player.qid_number}
-                          onChange={(e) =>
-                            updatePlayer(player.key, 'qid_number', normalizeQid(e.target.value))
-                          }
-                        />
-                      </label>
-                      <label>
-                        DOB
-                        <input
-                          required
-                          type="date"
-                          max={MAX_DOB}
-                          title="Born on or before 31 December 1991"
-                          value={player.dob}
-                          onChange={(e) => updatePlayer(player.key, 'dob', e.target.value)}
-                        />
-                      </label>
-                      <label>
-                        Position (optional)
-                        <input
-                          value={player.position}
-                          onChange={(e) => updatePlayer(player.key, 'position', e.target.value)}
-                          placeholder="GK / DF / MF / FW"
-                        />
-                      </label>
-                      <label className="form-span">
-                        Photo
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => onPlayerPhotoChange(player.key, e)}
-                        />
-                      </label>
-                    </div>
-                  </div>
-                  <PlayerCard
-                    playerName={player.player_name}
-                    qidNumber={player.qid_number}
-                    dob={player.dob}
-                    photo={player.photo}
-                    position={player.position}
-                    teamName={team.team_name}
+            <div className="register-level" style={{ borderTop: 'none', marginTop: 0, paddingTop: 0 }}>
+              <h3>Payment receipt</h3>
+              <p className="muted">
+                Complete manager and captain details, then upload the registration fee receipt or
+                payment screenshot. Player entry unlocks only after the receipt is uploaded.
+              </p>
+              {!managerCaptainReady && (
+                <p className="muted">Fill manager and captain details first to enable upload.</p>
+              )}
+              <div className="form-grid">
+                <label className="form-span">
+                  Receipt / screenshot
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={!managerCaptainReady}
+                    onChange={onPaymentReceiptChange}
                   />
+                </label>
+              </div>
+              {team.payment_receipt && (
+                <div className="cta-row" style={{ marginTop: '1rem', alignItems: 'center' }}>
+                  <img
+                    className="team-logo-thumb large"
+                    src={team.payment_receipt}
+                    alt="Payment receipt preview"
+                  />
+                  <button type="button" className="chip" onClick={clearPaymentReceipt}>
+                    Remove receipt
+                  </button>
                 </div>
-              ))}
+              )}
             </div>
           </div>
+
+          {paymentReady && (
+            <div className="register-panel">
+              <div className="section-head">
+                <div>
+                  <h2>Players</h2>
+                  <p>
+                    Add each player — the ID card updates as you type. Maximum {MAX_PLAYERS} players
+                    per team{players.length >= MAX_PLAYERS ? ' (limit reached).' : `.`}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={addPlayer}
+                  disabled={players.length >= MAX_PLAYERS}
+                >
+                  Add player
+                </button>
+              </div>
+
+              {!players.length && (
+                <p className="muted">No players yet. Click Add player to start your squad.</p>
+              )}
+
+              <div className="player-register-list">
+                {players.map((player, index) => (
+                  <div className="player-register-row" key={player.key}>
+                    <div className="player-register-fields">
+                      <div className="player-register-heading">
+                        <h3>Player {index + 1}</h3>
+                        {players.length > 0 && (
+                          <button
+                            type="button"
+                            className="chip"
+                            onClick={() => removePlayer(player.key)}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                      <div className="form-grid">
+                        <label>
+                          Player Name
+                          <input
+                            required
+                            value={player.player_name}
+                            onChange={(e) =>
+                              updatePlayer(player.key, 'player_name', e.target.value)
+                            }
+                          />
+                        </label>
+                        <label>
+                          QID Number
+                          <input
+                            required
+                            inputMode="numeric"
+                            pattern={`\\d{${QID_LENGTH}}`}
+                            maxLength={QID_LENGTH}
+                            minLength={QID_LENGTH}
+                            title={`Exactly ${QID_LENGTH} digits`}
+                            placeholder="11 digits"
+                            value={player.qid_number}
+                            onChange={(e) =>
+                              updatePlayer(player.key, 'qid_number', normalizeQid(e.target.value))
+                            }
+                          />
+                        </label>
+                        <label>
+                          DOB
+                          <input
+                            required
+                            type="date"
+                            max={MAX_DOB}
+                            title="Born on or before 31 December 1991"
+                            value={player.dob}
+                            onChange={(e) => updatePlayer(player.key, 'dob', e.target.value)}
+                          />
+                        </label>
+                        <label>
+                          Position (optional)
+                          <input
+                            value={player.position}
+                            onChange={(e) => updatePlayer(player.key, 'position', e.target.value)}
+                            placeholder="GK / DF / MF / FW"
+                          />
+                        </label>
+                        <label className="form-span">
+                          Photo
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => onPlayerPhotoChange(player.key, e)}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                    <PlayerCard
+                      playerName={player.player_name}
+                      qidNumber={player.qid_number}
+                      dob={player.dob}
+                      photo={player.photo}
+                      position={player.position}
+                      teamName={team.team_name}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="register-panel rules-agree">
             <label className="rules-agree-label">

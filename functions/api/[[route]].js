@@ -15,6 +15,7 @@ function stripPublicContacts(registration) {
     email: _email,
     captain_mobile: _captainMobile,
     captain_email: _captainEmail,
+    payment_receipt: _paymentReceipt,
     ...safe
   } = registration;
   return safe;
@@ -419,6 +420,7 @@ app.get('/registrations', async (c) => {
        r.captain_mobile,
        r.captain_email,
        r.team_logo,
+       r.payment_receipt,
        r.created_at,
        (
          SELECT COUNT(*) FROM registration_players p WHERE p.registration_id = r.id
@@ -442,7 +444,7 @@ app.get('/registrations/:id', async (c) => {
   const id = c.req.param('id');
   const registration = await c.env.DB.prepare(
     `SELECT id, team_name, manager_name, contact_number, email, captain_name, captain_mobile,
-            captain_email, team_logo, created_at
+            captain_email, team_logo, payment_receipt, created_at
      FROM team_registrations WHERE id = ?`
   )
     .bind(id)
@@ -481,6 +483,7 @@ app.post('/registrations', async (c) => {
     captain_mobile,
     captain_email = null,
     team_logo = null,
+    payment_receipt = null,
     accepted_rules = false,
     players = [],
   } = body;
@@ -505,6 +508,10 @@ app.post('/registrations', async (c) => {
       },
       400
     );
+  }
+
+  if (!payment_receipt) {
+    return c.json({ error: 'Payment receipt or screenshot is required before adding players' }, 400);
   }
 
   if (!Array.isArray(players) || players.length === 0) {
@@ -605,8 +612,8 @@ app.post('/registrations', async (c) => {
 
   const insertTeam = await c.env.DB.prepare(
     `INSERT INTO team_registrations
-      (team_name, manager_name, contact_number, email, captain_name, captain_mobile, captain_email, team_logo)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      (team_name, manager_name, contact_number, email, captain_name, captain_mobile, captain_email, team_logo, payment_receipt)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       team_name,
@@ -616,7 +623,8 @@ app.post('/registrations', async (c) => {
       captain_name,
       captainPhone,
       captain_email,
-      team_logo
+      team_logo,
+      payment_receipt
     )
     .run();
 

@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS team_registrations (
   captain_mobile TEXT NOT NULL,
   captain_email TEXT,
   team_logo TEXT,
+  payment_receipt TEXT,
   created_at TEXT DEFAULT (datetime('now'))
 );
 

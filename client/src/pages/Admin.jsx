@@ -365,6 +365,19 @@ function TeamEditor({ team, busy, onSave, onSavePlayer, onRemovePlayer }) {
         </div>
       </form>
 
+      {team.payment_receipt && (
+        <div className="register-level">
+          <h3>Payment receipt</h3>
+          <a href={team.payment_receipt} target="_blank" rel="noreferrer">
+            <img
+              className="team-logo-thumb large"
+              src={team.payment_receipt}
+              alt={`${team.team_name} payment receipt`}
+            />
+          </a>
+        </div>
+      )}
+
       <h3>Players</h3>
       {(team.players || []).map((player) => (
         <PlayerEditor
