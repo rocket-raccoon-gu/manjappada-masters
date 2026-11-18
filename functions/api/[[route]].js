@@ -1,6 +1,29 @@
 import { Hono } from 'hono';
 import { handle } from 'hono/cloudflare-pages';
-import { createAdminToken, requireAdmin, getSetting, setSetting } from '../_lib/auth.js';
+import {
+  createAdminToken,
+  requireAdmin,
+  getSetting,
+  setSetting,
+  verifyAdminToken,
+  readBearer,
+} from '../_lib/auth.js';
+
+function stripPublicContacts(registration) {
+  const {
+    contact_number: _contact,
+    email: _email,
+    captain_mobile: _captainMobile,
+    captain_email: _captainEmail,
+    payment_receipt: _paymentReceipt,
+    ...safe
+  } = registration;
+  return safe;
+}
+
+async function requestIsAdmin(c) {
+  return verifyAdminToken(c.env.ADMIN_PASSWORD, readBearer(c));
+}
 
 const MATCH_STATUSES = ['scheduled', 'live', 'finished', 'postponed'];
 
@@ -28,6 +51,18 @@ async function getTournamentId(db) {
     .bind("Masters 7's Football League", '2026', 'Doha', '2026-01-01', '2026-12-31', 'live')
     .run();
   return created.meta.last_row_id;
+}
+
+let paymentReceiptColumnReady = false;
+
+async function ensurePaymentReceiptColumn(db) {
+  if (paymentReceiptColumnReady) return;
+  try {
+    await db.prepare('ALTER TABLE team_registrations ADD COLUMN payment_receipt TEXT').run();
+  } catch {
+    // Column already exists (or DB already migrated).
+  }
+  paymentReceiptColumnReady = true;
 }
 
 async function resolveClubTeamId(db, { team_id, registration_id }) {
@@ -386,6 +421,7 @@ app.get('/players/scorers', async (c) => {
 });
 
 app.get('/registrations', async (c) => {
+  await ensurePaymentReceiptColumn(c.env.DB);
   const { results } = await c.env.DB.prepare(
     `SELECT
        r.id,
@@ -397,6 +433,7 @@ app.get('/registrations', async (c) => {
        r.captain_mobile,
        r.captain_email,
        r.team_logo,
+       r.payment_receipt,
        r.created_at,
        (
          SELECT COUNT(*) FROM registration_players p WHERE p.registration_id = r.id
@@ -404,19 +441,24 @@ app.get('/registrations', async (c) => {
      FROM team_registrations r
      ORDER BY r.id DESC`
   ).all();
+  const admin = await requestIsAdmin(c);
   return c.json(
-    results.map((row) => ({
-      ...row,
-      player_count: Number(row.player_count),
-    }))
+    results.map((row) => {
+      const mapped = {
+        ...row,
+        player_count: Number(row.player_count),
+      };
+      return admin ? mapped : stripPublicContacts(mapped);
+    })
   );
 });
 
 app.get('/registrations/:id', async (c) => {
+  await ensurePaymentReceiptColumn(c.env.DB);
   const id = c.req.param('id');
   const registration = await c.env.DB.prepare(
     `SELECT id, team_name, manager_name, contact_number, email, captain_name, captain_mobile,
-            captain_email, team_logo, created_at
+            captain_email, team_logo, payment_receipt, created_at
      FROM team_registrations WHERE id = ?`
   )
     .bind(id)
@@ -435,10 +477,13 @@ app.get('/registrations/:id', async (c) => {
     .bind(id)
     .all();
 
-  return c.json({ ...registration, players });
+  const payload = { ...registration, players };
+  const admin = await requestIsAdmin(c);
+  return c.json(admin ? payload : stripPublicContacts(payload));
 });
 
 app.post('/registrations', async (c) => {
+  await ensurePaymentReceiptColumn(c.env.DB);
   const open = await getSetting(c.env.DB, 'registration_open', '1');
   if (open === '0') {
     return c.json({ error: 'Registration is closed' }, 403);
@@ -453,6 +498,7 @@ app.post('/registrations', async (c) => {
     captain_mobile,
     captain_email = null,
     team_logo = null,
+    payment_receipt = null,
     accepted_rules = false,
     players = [],
   } = body;
@@ -479,12 +525,29 @@ app.post('/registrations', async (c) => {
     );
   }
 
+  if (!payment_receipt) {
+    return c.json({ error: 'Payment receipt or screenshot is required before adding players' }, 400);
+  }
+
   if (!Array.isArray(players) || players.length === 0) {
     return c.json({ error: 'At least one player is required' }, 400);
   }
 
-  if (players.length > 11) {
-    return c.json({ error: 'A team can have a maximum of 11 players' }, 400);
+  if (players.length > 10) {
+    return c.json({ error: 'A team can have a maximum of 10 players' }, 400);
+  }
+
+  const QID_RE = /^\d{11}$/;
+  const MAX_DOB = '1991-12-31';
+  const normalizePhone = (value) => String(value || '').replace(/\D/g, '');
+
+  const managerPhone = normalizePhone(contact_number);
+  const captainPhone = normalizePhone(captain_mobile);
+  if (managerPhone.length < 8) {
+    return c.json({ error: 'Manager mobile number is invalid' }, 400);
+  }
+  if (captainPhone.length < 8) {
+    return c.json({ error: 'Captain mobile number is invalid' }, 400);
   }
 
   for (const [index, player] of players.entries()) {
@@ -494,22 +557,89 @@ app.post('/registrations', async (c) => {
         400
       );
     }
+    const qid = String(player.qid_number).trim();
+    if (!QID_RE.test(qid)) {
+      return c.json(
+        { error: `Player ${index + 1}: QID number must be exactly 11 digits` },
+        400
+      );
+    }
+    if (String(player.dob) > MAX_DOB) {
+      return c.json(
+        {
+          error: `Player ${index + 1}: date of birth must be on or before 31 December 1991`,
+        },
+        400
+      );
+    }
+    player.qid_number = qid;
+  }
+
+  const qids = players.map((player) => player.qid_number);
+  if (new Set(qids).size !== qids.length) {
+    return c.json({ error: 'Each player must have a unique QID number on the team' }, 400);
+  }
+
+  const existingTeams = await c.env.DB.prepare(
+    `SELECT team_name, contact_number, captain_mobile FROM team_registrations`
+  ).all();
+
+  for (const row of existingTeams.results || []) {
+    const existingManager = normalizePhone(row.contact_number);
+    const existingCaptain = normalizePhone(row.captain_mobile);
+    if (managerPhone && (managerPhone === existingManager || managerPhone === existingCaptain)) {
+      return c.json(
+        {
+          error: `Manager mobile number is already registered with team "${row.team_name}"`,
+        },
+        409
+      );
+    }
+    if (captainPhone && (captainPhone === existingManager || captainPhone === existingCaptain)) {
+      return c.json(
+        {
+          error: `Captain mobile number is already registered with team "${row.team_name}"`,
+        },
+        409
+      );
+    }
+  }
+
+  for (const [index, qid] of qids.entries()) {
+    const taken = await c.env.DB.prepare(
+      `SELECT rp.player_name, tr.team_name
+       FROM registration_players rp
+       JOIN team_registrations tr ON tr.id = rp.registration_id
+       WHERE rp.qid_number = ?
+       LIMIT 1`
+    )
+      .bind(qid)
+      .first();
+    if (taken) {
+      return c.json(
+        {
+          error: `Player ${index + 1}: QID ${qid} is already registered (${taken.player_name} / ${taken.team_name})`,
+        },
+        409
+      );
+    }
   }
 
   const insertTeam = await c.env.DB.prepare(
     `INSERT INTO team_registrations
-      (team_name, manager_name, contact_number, email, captain_name, captain_mobile, captain_email, team_logo)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      (team_name, manager_name, contact_number, email, captain_name, captain_mobile, captain_email, team_logo, payment_receipt)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       team_name,
       manager_name,
-      contact_number,
+      managerPhone,
       email,
       captain_name,
-      captain_mobile,
+      captainPhone,
       captain_email,
-      team_logo
+      team_logo,
+      payment_receipt
     )
     .run();
 
