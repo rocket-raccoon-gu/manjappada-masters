@@ -58,14 +58,6 @@ export default function Register() {
   const [error, setError] = useState('');
   const [successId, setSuccessId] = useState(null);
 
-  const managerCaptainReady = Boolean(
-    team.manager_name.trim() &&
-      normalizePhone(team.contact_number).length >= 8 &&
-      team.email.trim() &&
-      team.captain_name.trim() &&
-      normalizePhone(team.captain_mobile).length >= 8 &&
-      team.captain_email.trim()
-  );
   const paymentReady = Boolean(team.payment_receipt);
 
   function updateTeam(field, value) {
@@ -356,19 +348,15 @@ export default function Register() {
             <div className="register-level" style={{ borderTop: 'none', marginTop: 0, paddingTop: 0 }}>
               <h3>Payment receipt</h3>
               <p className="muted">
-                Complete manager and captain details, then upload the registration fee receipt or
-                payment screenshot. Player entry unlocks only after the receipt is uploaded.
+                Upload the registration fee receipt or payment screenshot. Player entry unlocks only
+                after the receipt is uploaded.
               </p>
-              {!managerCaptainReady && (
-                <p className="muted">Fill manager and captain details first to enable upload.</p>
-              )}
               <div className="form-grid">
                 <label className="form-span">
                   Receipt / screenshot
                   <input
                     type="file"
                     accept="image/*"
-                    disabled={!managerCaptainReady}
                     onChange={onPaymentReceiptChange}
                   />
                 </label>
