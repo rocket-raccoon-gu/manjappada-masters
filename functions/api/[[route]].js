@@ -53,6 +53,18 @@ async function getTournamentId(db) {
   return created.meta.last_row_id;
 }
 
+let paymentReceiptColumnReady = false;
+
+async function ensurePaymentReceiptColumn(db) {
+  if (paymentReceiptColumnReady) return;
+  try {
+    await db.prepare('ALTER TABLE team_registrations ADD COLUMN payment_receipt TEXT').run();
+  } catch {
+    // Column already exists (or DB already migrated).
+  }
+  paymentReceiptColumnReady = true;
+}
+
 async function resolveClubTeamId(db, { team_id, registration_id }) {
   if (team_id) {
     const team = await db.prepare('SELECT id FROM teams WHERE id = ?').bind(Number(team_id)).first();
@@ -409,6 +421,7 @@ app.get('/players/scorers', async (c) => {
 });
 
 app.get('/registrations', async (c) => {
+  await ensurePaymentReceiptColumn(c.env.DB);
   const { results } = await c.env.DB.prepare(
     `SELECT
        r.id,
@@ -441,6 +454,7 @@ app.get('/registrations', async (c) => {
 });
 
 app.get('/registrations/:id', async (c) => {
+  await ensurePaymentReceiptColumn(c.env.DB);
   const id = c.req.param('id');
   const registration = await c.env.DB.prepare(
     `SELECT id, team_name, manager_name, contact_number, email, captain_name, captain_mobile,
@@ -469,6 +483,7 @@ app.get('/registrations/:id', async (c) => {
 });
 
 app.post('/registrations', async (c) => {
+  await ensurePaymentReceiptColumn(c.env.DB);
   const open = await getSetting(c.env.DB, 'registration_open', '1');
   if (open === '0') {
     return c.json({ error: 'Registration is closed' }, 403);
