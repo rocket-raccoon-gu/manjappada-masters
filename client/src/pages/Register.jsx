@@ -161,7 +161,13 @@ export default function Register() {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => onImageChange('team_logo', e, { maxWidth: 360, quality: 0.75 })}
+                  onChange={(e) =>
+                    onImageChange('team_logo', e, {
+                      maxWidth: 640,
+                      quality: 0.88,
+                      preserveTransparency: true,
+                    })
+                  }
                 />
               </label>
             </div>
