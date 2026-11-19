@@ -264,14 +264,16 @@ export default function Register() {
           <div className="register-panel">
             <h2>Team login</h2>
             <p className="muted">
-              Create a password now. Username is always your team name — use it later to add
-              players.
+              Create a password below. Your username is your team name (change it in Team details
+              above) — use both later to add players.
             </p>
             <div className="form-grid">
-              <label>
-                Username
-                <input value={team.team_name || 'Your team name'} disabled readOnly />
-              </label>
+              <div className="username-readonly form-span">
+                <span className="username-readonly-label">Username (from team name)</span>
+                <p className="username-readonly-value">
+                  {team.team_name.trim() || 'Enter a team name above'}
+                </p>
+              </div>
               <label>
                 Password
                 <input
@@ -281,9 +283,10 @@ export default function Register() {
                   value={team.password}
                   onChange={(e) => updateTeam('password', e.target.value)}
                   autoComplete="new-password"
+                  placeholder="At least 6 characters"
                 />
               </label>
-              <label className="form-span">
+              <label>
                 Confirm password
                 <input
                   required
@@ -292,6 +295,7 @@ export default function Register() {
                   value={team.password_confirm}
                   onChange={(e) => updateTeam('password_confirm', e.target.value)}
                   autoComplete="new-password"
+                  placeholder="Re-enter password"
                 />
               </label>
             </div>
