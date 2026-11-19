@@ -31,6 +31,7 @@ export default function Layout() {
                 {link.label}
               </NavLink>
             ))}
+            <NavLink to="/team">Team login</NavLink>
             {registrationOpen && (
               <NavLink to="/register" className="nav-cta">
                 Join Now

@@ -1,5 +1,6 @@
 const API_BASE = import.meta.env.VITE_API_URL || '';
 const TOKEN_KEY = 'mmfl_admin_token';
+const TEAM_TOKEN_KEY = 'mmfl_team_token';
 
 export function getAdminToken() {
   try {
@@ -13,6 +14,23 @@ export function setAdminToken(token) {
   try {
     if (token) sessionStorage.setItem(TOKEN_KEY, token);
     else sessionStorage.removeItem(TOKEN_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getTeamToken() {
+  try {
+    return sessionStorage.getItem(TEAM_TOKEN_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+export function setTeamToken(token) {
+  try {
+    if (token) sessionStorage.setItem(TEAM_TOKEN_KEY, token);
+    else sessionStorage.removeItem(TEAM_TOKEN_KEY);
   } catch {
     /* ignore */
   }
@@ -33,6 +51,23 @@ async function adminRequest(path, { method = 'GET', body } = {}) {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${getAdminToken()}`,
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || `Request failed (${response.status})`);
+  }
+  if (response.status === 204) return null;
+  return response.json();
+}
+
+async function teamRequest(path, { method = 'GET', body } = {}) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${getTeamToken()}`,
     },
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -71,6 +106,21 @@ export const api = {
     }
     return response.json();
   },
+  teamLogin: async (username, password) => {
+    const response = await fetch(`${API_BASE}/api/team/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Login failed');
+    return data;
+  },
+  teamMe: () => teamRequest('/api/team/me'),
+  addTeamPlayer: (body) => teamRequest('/api/team/me/players', { method: 'POST', body }),
+  updateTeamPlayer: (id, body) =>
+    teamRequest(`/api/team/me/players/${id}`, { method: 'PATCH', body }),
+  deleteTeamPlayer: (id) => teamRequest(`/api/team/me/players/${id}`, { method: 'DELETE' }),
   adminLogin: (password) =>
     fetch(`${API_BASE}/api/admin/login`, {
       method: 'POST',

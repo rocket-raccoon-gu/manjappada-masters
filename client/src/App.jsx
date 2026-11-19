@@ -7,6 +7,7 @@ import Teams from './pages/Teams.jsx';
 import TeamDetail from './pages/TeamDetail.jsx';
 import Register from './pages/Register.jsx';
 import RegistrationDetail from './pages/RegistrationDetail.jsx';
+import TeamPortal from './pages/TeamPortal.jsx';
 import Admin from './pages/Admin.jsx';
 import Rules from './pages/Rules.jsx';
 
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/teams/:id" element={<TeamDetail />} />
         <Route path="/registrations/:id" element={<RegistrationDetail />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/team" element={<TeamPortal />} />
         <Route path="/rules" element={<Rules />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/panel" element={<Admin />} />

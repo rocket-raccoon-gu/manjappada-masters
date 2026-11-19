@@ -1,6 +1,18 @@
 import { Hono } from 'hono';
 import { handle } from 'hono/cloudflare-pages';
-import { createAdminToken, requireAdmin, getSetting, setSetting } from '../_lib/auth.js';
+import {
+  createAdminToken,
+  createTeamToken,
+  requireAdmin,
+  requireTeam,
+  getSetting,
+  setSetting,
+  hashPassword,
+  verifyPassword,
+  normalizeUsername,
+} from '../_lib/auth.js';
+
+const MAX_PLAYERS = 12;
 
 const MATCH_STATUSES = ['scheduled', 'live', 'finished', 'postponed'];
 
@@ -453,8 +465,9 @@ app.post('/registrations', async (c) => {
     captain_mobile,
     captain_email = null,
     team_logo = null,
+    payment_receipt = null,
+    password = null,
     accepted_rules = false,
-    players = [],
   } = body;
 
   if (!accepted_rules) {
@@ -479,60 +492,210 @@ app.post('/registrations', async (c) => {
     );
   }
 
-  if (!Array.isArray(players) || players.length === 0) {
-    return c.json({ error: 'At least one player is required' }, 400);
+  if (!payment_receipt) {
+    return c.json({ error: 'Payment receipt screenshot is required' }, 400);
   }
 
-  if (players.length > 11) {
-    return c.json({ error: 'A team can have a maximum of 11 players' }, 400);
+  if (!password || String(password).length < 6) {
+    return c.json({ error: 'Password must be at least 6 characters' }, 400);
   }
 
-  for (const [index, player] of players.entries()) {
-    if (!player.player_name || !player.qid_number || !player.dob) {
-      return c.json(
-        { error: `Player ${index + 1} requires player_name, qid_number, and dob` },
-        400
-      );
-    }
+  const username = normalizeUsername(team_name);
+  if (!username) {
+    return c.json({ error: 'Team name is required for username' }, 400);
   }
+
+  const existing = await c.env.DB.prepare(
+    'SELECT id FROM team_registrations WHERE lower(trim(team_name)) = ? OR username = ? LIMIT 1'
+  )
+    .bind(username, username)
+    .first();
+  if (existing) {
+    return c.json({ error: 'A team with this name is already registered' }, 409);
+  }
+
+  const password_hash = await hashPassword(String(password));
 
   const insertTeam = await c.env.DB.prepare(
     `INSERT INTO team_registrations
-      (team_name, manager_name, contact_number, email, captain_name, captain_mobile, captain_email, team_logo)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      (team_name, manager_name, contact_number, email, captain_name, captain_mobile, captain_email,
+       team_logo, username, password_hash, payment_receipt)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
-      team_name,
+      team_name.trim(),
       manager_name,
       contact_number,
       email,
       captain_name,
       captain_mobile,
       captain_email,
-      team_logo
+      team_logo,
+      username,
+      password_hash,
+      payment_receipt
     )
     .run();
 
   const registrationId = insertTeam.meta.last_row_id;
-  const statements = players.map((player, index) =>
-    c.env.DB.prepare(
-      `INSERT INTO registration_players
-        (registration_id, player_name, qid_number, dob, photo, position, sort_order)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
-    ).bind(
-      registrationId,
-      player.player_name,
-      player.qid_number,
-      player.dob,
-      player.photo || null,
-      player.position || null,
-      index
-    )
+  return c.json(
+    {
+      id: registrationId,
+      ok: true,
+      username,
+      message: 'Team registered. Log in with your team name and password to add players.',
+    },
+    201
   );
+});
 
-  await c.env.DB.batch(statements);
+app.post('/team/login', async (c) => {
+  const secret = c.env.ADMIN_PASSWORD;
+  if (!secret) {
+    return c.json({ error: 'Team auth is not configured' }, 503);
+  }
+  const { username, password } = await c.req.json();
+  const normalized = normalizeUsername(username);
+  if (!normalized || !password) {
+    return c.json({ error: 'Team name and password are required' }, 400);
+  }
 
-  return c.json({ id: registrationId, ok: true, players: players.length }, 201);
+  const team = await c.env.DB.prepare(
+    `SELECT id, team_name, username, password_hash
+     FROM team_registrations
+     WHERE username = ? OR lower(trim(team_name)) = ?
+     LIMIT 1`
+  )
+    .bind(normalized, normalized)
+    .first();
+
+  if (!team?.password_hash) {
+    return c.json({ error: 'Invalid team name or password' }, 401);
+  }
+
+  const ok = await verifyPassword(String(password), team.password_hash);
+  if (!ok) {
+    return c.json({ error: 'Invalid team name or password' }, 401);
+  }
+
+  const token = await createTeamToken(secret, team.id);
+  return c.json({
+    ok: true,
+    token,
+    team: { id: team.id, team_name: team.team_name, username: team.username || normalized },
+  });
+});
+
+app.get('/team/me', async (c) => {
+  const auth = await requireTeam(c);
+  if (auth.errorResponse) return auth.errorResponse;
+
+  const registration = await c.env.DB.prepare(
+    `SELECT id, team_name, manager_name, contact_number, email, captain_name, captain_mobile,
+            captain_email, team_logo, username, payment_receipt, created_at
+     FROM team_registrations WHERE id = ?`
+  )
+    .bind(auth.teamId)
+    .first();
+
+  if (!registration) {
+    return c.json({ error: 'Team not found' }, 404);
+  }
+
+  const { results: players } = await c.env.DB.prepare(
+    `SELECT id, player_name, qid_number, dob, photo, position, sort_order
+     FROM registration_players
+     WHERE registration_id = ?
+     ORDER BY sort_order ASC, id ASC`
+  )
+    .bind(auth.teamId)
+    .all();
+
+  return c.json({ ...registration, players });
+});
+
+app.post('/team/me/players', async (c) => {
+  const auth = await requireTeam(c);
+  if (auth.errorResponse) return auth.errorResponse;
+  const body = await c.req.json();
+  const { player_name, qid_number, dob, photo = null, position = null } = body;
+
+  if (!player_name || !qid_number || !dob) {
+    return c.json({ error: 'player_name, qid_number, and dob are required' }, 400);
+  }
+
+  const countRow = await c.env.DB.prepare(
+    'SELECT COUNT(*) AS total FROM registration_players WHERE registration_id = ?'
+  )
+    .bind(auth.teamId)
+    .first();
+  const total = Number(countRow?.total || 0);
+  if (total >= MAX_PLAYERS) {
+    return c.json({ error: `A team can have a maximum of ${MAX_PLAYERS} players` }, 400);
+  }
+
+  const result = await c.env.DB.prepare(
+    `INSERT INTO registration_players
+      (registration_id, player_name, qid_number, dob, photo, position, sort_order)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
+  )
+    .bind(auth.teamId, player_name, qid_number, dob, photo, position, total)
+    .run();
+
+  return c.json({ id: result.meta.last_row_id, ok: true }, 201);
+});
+
+app.patch('/team/me/players/:id', async (c) => {
+  const auth = await requireTeam(c);
+  if (auth.errorResponse) return auth.errorResponse;
+  const id = c.req.param('id');
+  const body = await c.req.json();
+
+  const current = await c.env.DB.prepare(
+    'SELECT * FROM registration_players WHERE id = ? AND registration_id = ?'
+  )
+    .bind(id, auth.teamId)
+    .first();
+  if (!current) {
+    return c.json({ error: 'Player not found' }, 404);
+  }
+
+  await c.env.DB.prepare(
+    `UPDATE registration_players
+     SET player_name = ?,
+         qid_number = ?,
+         dob = ?,
+         photo = ?,
+         position = ?
+     WHERE id = ? AND registration_id = ?`
+  )
+    .bind(
+      body.player_name ?? current.player_name,
+      body.qid_number ?? current.qid_number,
+      body.dob ?? current.dob,
+      body.photo === undefined ? current.photo : body.photo,
+      body.position === undefined ? current.position : body.position,
+      id,
+      auth.teamId
+    )
+    .run();
+
+  return c.json({ ok: true });
+});
+
+app.delete('/team/me/players/:id', async (c) => {
+  const auth = await requireTeam(c);
+  if (auth.errorResponse) return auth.errorResponse;
+  const id = c.req.param('id');
+  const result = await c.env.DB.prepare(
+    'DELETE FROM registration_players WHERE id = ? AND registration_id = ?'
+  )
+    .bind(id, auth.teamId)
+    .run();
+  if (!result.meta.changes) {
+    return c.json({ error: 'Player not found' }, 404);
+  }
+  return c.json({ ok: true });
 });
 
 app.post('/admin/login', async (c) => {

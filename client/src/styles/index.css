@@ -1261,8 +1261,99 @@ select {
 
 .register-actions {
   display: flex;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: flex-start;
   padding: 0.5rem 0 1rem;
+}
+
+.field-hint {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--ink-soft);
+}
+
+.logo-preview.receipt-preview {
+  width: min(100%, 22rem);
+  height: auto;
+  max-height: 16rem;
+}
+
+.logo-preview.receipt-preview img {
+  object-fit: contain;
+  background: var(--blue-mist);
+}
+
+.success-box {
+  padding: 1rem 0;
+  color: #067647;
+  font-weight: 600;
+}
+
+.team-player-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.team-player-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.85rem;
+  align-items: center;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.team-player-meta {
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.team-player-thumb {
+  width: 3.25rem;
+  height: 3.25rem;
+  object-fit: cover;
+  border: 2px solid var(--yellow);
+  background: var(--blue-mist);
+  flex-shrink: 0;
+}
+
+.team-player-thumb.placeholder {
+  display: inline-block;
+}
+
+.team-player-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.player-media-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin: 1rem 0;
+}
+
+.player-media-preview img {
+  width: min(100%, 12rem);
+  max-height: 10rem;
+  object-fit: contain;
+  border: 2px solid var(--line-strong);
+  background: var(--blue-mist);
+}
+
+.team-login-form {
+  max-width: 28rem;
 }
 
 .player-id-card {
