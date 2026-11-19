@@ -23,7 +23,11 @@ export default function RegistrationDetail() {
             <div className="page-hero registration-hero">
               <div className="registration-hero-top">
                 {data.team_logo ? (
-                  <img className="team-logo-thumb large" src={data.team_logo} alt="" />
+                  <img
+                    className="team-logo-thumb large"
+                    src={data.team_logo}
+                    alt={`${data.team_name} logo`}
+                  />
                 ) : (
                   <span
                     className="crest"
