@@ -11,6 +11,12 @@ import {
   verifyPassword,
   normalizeUsername,
 } from '../_lib/auth.js';
+import {
+  digitsOnly,
+  normalizeQatarMobile,
+  validatePlayerFields,
+  validateTeamMobiles,
+} from '../_lib/validation.js';
 
 const MAX_PLAYERS = 12;
 
@@ -500,6 +506,11 @@ app.post('/registrations', async (c) => {
     return c.json({ error: 'Password must be at least 6 characters' }, 400);
   }
 
+  const mobileError = validateTeamMobiles({ contact_number, captain_mobile });
+  if (mobileError) {
+    return c.json({ error: mobileError }, 400);
+  }
+
   const username = normalizeUsername(team_name);
   if (!username) {
     return c.json({ error: 'Team name is required for username' }, 400);
@@ -515,6 +526,8 @@ app.post('/registrations', async (c) => {
   }
 
   const password_hash = await hashPassword(String(password));
+  const managerMobile = normalizeQatarMobile(contact_number);
+  const captainMobile = normalizeQatarMobile(captain_mobile);
 
   const insertTeam = await c.env.DB.prepare(
     `INSERT INTO team_registrations
@@ -525,10 +538,10 @@ app.post('/registrations', async (c) => {
     .bind(
       team_name.trim(),
       manager_name,
-      contact_number,
+      managerMobile,
       email,
       captain_name,
-      captain_mobile,
+      captainMobile,
       captain_email,
       team_logo,
       username,
@@ -618,10 +631,13 @@ app.post('/team/me/players', async (c) => {
   const auth = await requireTeam(c);
   if (auth.errorResponse) return auth.errorResponse;
   const body = await c.req.json();
-  const { player_name, qid_number, dob, photo = null, position = null } = body;
+  const { player_name, photo = null, position = null } = body;
+  const qid_number = digitsOnly(body.qid_number);
+  const dob = body.dob;
 
-  if (!player_name || !qid_number || !dob) {
-    return c.json({ error: 'player_name, qid_number, and dob are required' }, 400);
+  const fieldError = validatePlayerFields({ player_name, qid_number, dob });
+  if (fieldError) {
+    return c.json({ error: fieldError }, 400);
   }
 
   const countRow = await c.env.DB.prepare(
@@ -639,7 +655,7 @@ app.post('/team/me/players', async (c) => {
       (registration_id, player_name, qid_number, dob, photo, position, sort_order)
      VALUES (?, ?, ?, ?, ?, ?, ?)`
   )
-    .bind(auth.teamId, player_name, qid_number, dob, photo, position, total)
+    .bind(auth.teamId, String(player_name).trim(), qid_number, dob, photo, position, total)
     .run();
 
   return c.json({ id: result.meta.last_row_id, ok: true }, 201);
@@ -660,6 +676,17 @@ app.patch('/team/me/players/:id', async (c) => {
     return c.json({ error: 'Player not found' }, 404);
   }
 
+  const next = {
+    player_name: body.player_name ?? current.player_name,
+    qid_number:
+      body.qid_number !== undefined ? digitsOnly(body.qid_number) : current.qid_number,
+    dob: body.dob ?? current.dob,
+  };
+  const fieldError = validatePlayerFields(next);
+  if (fieldError) {
+    return c.json({ error: fieldError }, 400);
+  }
+
   await c.env.DB.prepare(
     `UPDATE registration_players
      SET player_name = ?,
@@ -670,9 +697,9 @@ app.patch('/team/me/players/:id', async (c) => {
      WHERE id = ? AND registration_id = ?`
   )
     .bind(
-      body.player_name ?? current.player_name,
-      body.qid_number ?? current.qid_number,
-      body.dob ?? current.dob,
+      String(next.player_name).trim(),
+      next.qid_number,
+      next.dob,
       body.photo === undefined ? current.photo : body.photo,
       body.position === undefined ? current.position : body.position,
       id,

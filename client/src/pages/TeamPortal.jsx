@@ -2,6 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, getTeamToken, setTeamToken } from '../api';
 import { compressImage } from '../utils/image.js';
+import {
+  MAX_DOB,
+  MIN_DOB,
+  digitsOnly,
+  dobError,
+  qidDobMismatchError,
+  qidError,
+} from '../utils/validation.js';
 
 const emptyPlayer = {
   player_name: '',
@@ -112,12 +120,34 @@ export default function TeamPortal() {
 
   async function onSavePlayer(event) {
     event.preventDefault();
-    setSaving(true);
     setError('');
     setMessage('');
+
+    const qid = digitsOnly(playerForm.qid_number);
+    const qidErr = qidError(qid);
+    if (qidErr) {
+      setError(qidErr);
+      return;
+    }
+    const birthErr = dobError(playerForm.dob);
+    if (birthErr) {
+      setError(birthErr);
+      return;
+    }
+    const mismatch = qidDobMismatchError(qid, playerForm.dob);
+    if (mismatch) {
+      setError(mismatch);
+      return;
+    }
+    if (!editingId && !playerForm.photo) {
+      setError('Please upload an ID card / photo.');
+      return;
+    }
+
+    setSaving(true);
     const payload = {
       player_name: playerForm.player_name.trim(),
-      qid_number: playerForm.qid_number.trim(),
+      qid_number: qid,
       dob: playerForm.dob,
       position: playerForm.position.trim() || null,
       photo: playerForm.photo || null,
@@ -333,18 +363,29 @@ export default function TeamPortal() {
                   QID number
                   <input
                     required
+                    inputMode="numeric"
+                    pattern="\d{11}"
+                    maxLength={11}
+                    title="Qatar ID must be 11 digits"
                     value={playerForm.qid_number}
-                    onChange={(e) => updatePlayerField('qid_number', e.target.value)}
+                    onChange={(e) =>
+                      updatePlayerField('qid_number', digitsOnly(e.target.value).slice(0, 11))
+                    }
+                    placeholder="11 digits"
                   />
+                  <span className="field-hint">Exactly 11 digits</span>
                 </label>
                 <label>
                   Date of birth
                   <input
                     required
                     type="date"
+                    min={MIN_DOB}
+                    max={MAX_DOB}
                     value={playerForm.dob}
                     onChange={(e) => updatePlayerField('dob', e.target.value)}
                   />
+                  <span className="field-hint">Age 35+ — on or before 31 Dec 1991</span>
                 </label>
                 <label>
                   Position

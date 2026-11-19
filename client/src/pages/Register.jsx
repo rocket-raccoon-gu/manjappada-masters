@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../api';
 import useApi from '../hooks/useApi';
 import { compressImage } from '../utils/image.js';
+import { normalizeQatarMobile, qatarMobileError } from '../utils/validation.js';
 
 const initialTeam = {
   team_name: '',
@@ -51,6 +52,16 @@ export default function Register() {
       setError('Please agree to the Rules & Regulations before submitting.');
       return;
     }
+    const managerMobileErr = qatarMobileError(team.contact_number);
+    if (managerMobileErr) {
+      setError(`Manager: ${managerMobileErr}`);
+      return;
+    }
+    const captainMobileErr = qatarMobileError(team.captain_mobile);
+    if (captainMobileErr) {
+      setError(`Captain: ${captainMobileErr}`);
+      return;
+    }
     if (!team.payment_receipt) {
       setError('Please upload a screenshot of the payment receipt.');
       return;
@@ -69,10 +80,10 @@ export default function Register() {
       const result = await api.registerTeam({
         team_name: team.team_name,
         manager_name: team.manager_name,
-        contact_number: team.contact_number,
+        contact_number: normalizeQatarMobile(team.contact_number),
         email: team.email,
         captain_name: team.captain_name,
-        captain_mobile: team.captain_mobile,
+        captain_mobile: normalizeQatarMobile(team.captain_mobile),
         captain_email: team.captain_email,
         team_logo: team.team_logo || null,
         payment_receipt: team.payment_receipt,
@@ -189,13 +200,17 @@ export default function Register() {
                   />
                 </label>
                 <label>
-                  Mobile Number
+                  Mobile Number (Qatar)
                   <input
                     required
+                    inputMode="numeric"
+                    pattern="^(?:\+?974)?[3567]\d{7}$"
+                    title="8-digit Qatar mobile starting with 3, 5, 6, or 7"
                     value={team.contact_number}
                     onChange={(e) => updateTeam('contact_number', e.target.value)}
-                    placeholder="Digits only"
+                    placeholder="e.g. 50123456"
                   />
+                  <span className="field-hint">8 digits, starts with 3 / 5 / 6 / 7 (+974 optional)</span>
                 </label>
                 <label className="form-span">
                   Email Id
@@ -221,13 +236,17 @@ export default function Register() {
                   />
                 </label>
                 <label>
-                  Mobile Number
+                  Mobile Number (Qatar)
                   <input
                     required
+                    inputMode="numeric"
+                    pattern="^(?:\+?974)?[3567]\d{7}$"
+                    title="8-digit Qatar mobile starting with 3, 5, 6, or 7"
                     value={team.captain_mobile}
                     onChange={(e) => updateTeam('captain_mobile', e.target.value)}
-                    placeholder="Digits only"
+                    placeholder="e.g. 55123456"
                   />
+                  <span className="field-hint">8 digits, starts with 3 / 5 / 6 / 7 (+974 optional)</span>
                 </label>
                 <label className="form-span">
                   Email Id
