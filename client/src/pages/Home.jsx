@@ -25,13 +25,13 @@ export default function Home() {
         <img
           className="hero-banner"
           src="/mmfl-banner.jpg"
-          alt="Masters 7's Football League — Manjappada Qatar Wing presents — age 35 & above, December 11"
+          alt="Masters 7's Football Cup — Manjappada Qatar Wing presents — age 35 & above, December 11"
         />
         <div className="hero-band">
           <div className="container hero-band-inner">
             <div className="hero-content">
               <h1 className="hero-brand">
-                Masters <em>7&apos;s</em> Football League
+                Masters <em>7&apos;s</em> Football Cup
               </h1>
               <p className="hero-copy">
                 Masters teams · Age 35 &amp; above · December 11 · Follow fixtures, standings, and every club in the race.

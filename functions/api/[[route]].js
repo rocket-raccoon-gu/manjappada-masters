@@ -43,7 +43,7 @@ async function getTournamentId(db) {
       `INSERT INTO tournament (name, season, venue, start_date, end_date, status)
        VALUES (?, ?, ?, ?, ?, ?)`
     )
-    .bind("Masters 7's Football League", '2026', 'Doha', '2026-01-01', '2026-12-31', 'live')
+    .bind("Masters 7's Football Cup", '2026', 'Doha', '2026-01-01', '2026-12-31', 'live')
     .run();
   return created.meta.last_row_id;
 }

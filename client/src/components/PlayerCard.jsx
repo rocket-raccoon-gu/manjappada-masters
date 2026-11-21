@@ -16,7 +16,7 @@ export default function PlayerCard({
 
   return (
     <article className="player-id-card">
-      <div className="player-id-card__title">Masters 7&apos;s Football League</div>
+      <div className="player-id-card__title">Masters 7&apos;s Football Cup</div>
       <div className="player-id-card__region">Qatar</div>
 
       <div className="player-id-card__body">

@@ -38,7 +38,7 @@ export default function RegistrationDetail() {
                 )}
                 <div>
                   <h1>{data.team_name}</h1>
-                  <p>Masters 7&apos;s Football League · Manjappada Qatar</p>
+                  <p>Masters 7&apos;s Football Cup · Manjappada Qatar</p>
                 </div>
               </div>
 
@@ -83,7 +83,7 @@ export default function RegistrationDetail() {
             <div className="section-head">
               <div>
                 <h2>Squad ID cards</h2>
-                <p>Registered players for Masters 7&apos;s Football League.</p>
+                <p>Registered players for Masters 7&apos;s Football Cup.</p>
               </div>
             </div>
 
