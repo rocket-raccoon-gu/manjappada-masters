@@ -24,6 +24,7 @@ export default function Register() {
   const registrationOpen = settings.data?.registration_open !== false;
   const [team, setTeam] = useState(initialTeam);
   const [agreedToRules, setAgreedToRules] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(null);
@@ -301,27 +302,39 @@ export default function Register() {
               </div>
               <label>
                 Password
-                <input
-                  required
-                  type="password"
-                  minLength={6}
-                  value={team.password}
-                  onChange={(e) => updateTeam('password', e.target.value)}
-                  autoComplete="new-password"
-                  placeholder="At least 6 characters"
-                />
+                <div className="password-field">
+                  <input
+                    required
+                    type={showPassword ? 'text' : 'password'}
+                    minLength={6}
+                    value={team.password}
+                    onChange={(e) => updateTeam('password', e.target.value)}
+                    autoComplete="new-password"
+                    placeholder="At least 6 characters"
+                  />
+                </div>
               </label>
               <label>
                 Confirm password
+                <div className="password-field">
+                  <input
+                    required
+                    type={showPassword ? 'text' : 'password'}
+                    minLength={6}
+                    value={team.password_confirm}
+                    onChange={(e) => updateTeam('password_confirm', e.target.value)}
+                    autoComplete="new-password"
+                    placeholder="Re-enter password"
+                  />
+                </div>
+              </label>
+              <label className="form-span show-password-toggle">
                 <input
-                  required
-                  type="password"
-                  minLength={6}
-                  value={team.password_confirm}
-                  onChange={(e) => updateTeam('password_confirm', e.target.value)}
-                  autoComplete="new-password"
-                  placeholder="Re-enter password"
+                  type="checkbox"
+                  checked={showPassword}
+                  onChange={(e) => setShowPassword(e.target.checked)}
                 />
+                <span>Show password</span>
               </label>
             </div>
           </div>

@@ -23,6 +23,7 @@ export default function TeamPortal() {
   const [token, setToken] = useState(() => getTeamToken());
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [loggingIn, setLoggingIn] = useState(false);
 
@@ -210,13 +211,23 @@ export default function TeamPortal() {
                 </label>
                 <label className="form-span">
                   Password
+                  <div className="password-field">
+                    <input
+                      required
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
+                    />
+                  </div>
+                </label>
+                <label className="form-span show-password-toggle">
                   <input
-                    required
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
+                    type="checkbox"
+                    checked={showPassword}
+                    onChange={(e) => setShowPassword(e.target.checked)}
                   />
+                  <span>Show password</span>
                 </label>
               </div>
               {loginError && <div className="error-box">{loginError}</div>}
