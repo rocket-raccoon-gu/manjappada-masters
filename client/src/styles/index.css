@@ -1399,6 +1399,28 @@ select {
   font-weight: 600;
 }
 
+.admin-receipt {
+  margin: 1.25rem 0;
+}
+
+.admin-receipt h3 {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--blue);
+  font-weight: 400;
+}
+
+.admin-receipt-img {
+  display: block;
+  width: min(100%, 28rem);
+  max-height: 22rem;
+  object-fit: contain;
+  border: 2px solid var(--line-strong);
+  background: var(--blue-mist);
+}
+
 .username-readonly {
   display: grid;
   gap: 0.35rem;

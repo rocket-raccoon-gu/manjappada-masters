@@ -749,6 +749,33 @@ app.patch('/admin/settings', async (c) => {
   return c.json({ ok: true, registration_open: body.registration_open });
 });
 
+app.get('/admin/registrations/:id', async (c) => {
+  const denied = await requireAdmin(c);
+  if (denied) return denied;
+  const id = c.req.param('id');
+  const registration = await c.env.DB.prepare(
+    `SELECT id, team_name, manager_name, contact_number, email, captain_name, captain_mobile,
+            captain_email, team_logo, username, payment_receipt, created_at
+     FROM team_registrations WHERE id = ?`
+  )
+    .bind(id)
+    .first();
+  if (!registration) {
+    return c.json({ error: 'Team not found' }, 404);
+  }
+
+  const { results: players } = await c.env.DB.prepare(
+    `SELECT id, player_name, qid_number, dob, photo, position, sort_order
+     FROM registration_players
+     WHERE registration_id = ?
+     ORDER BY sort_order ASC, id ASC`
+  )
+    .bind(id)
+    .all();
+
+  return c.json({ ...registration, players });
+});
+
 app.patch('/admin/registrations/:id', async (c) => {
   const denied = await requireAdmin(c);
   if (denied) return denied;

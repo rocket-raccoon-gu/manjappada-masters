@@ -39,7 +39,7 @@ export default function Admin() {
       return;
     }
     api
-      .registration(openTeamId)
+      .adminRegistration(openTeamId)
       .then(setTeamDetail)
       .catch((err) => setError(err.message));
   }, [openTeamId]);
@@ -71,7 +71,7 @@ export default function Admin() {
       await action();
       await refresh();
       if (openTeamId) {
-        setTeamDetail(await api.registration(openTeamId));
+        setTeamDetail(await api.adminRegistration(openTeamId));
       }
     } catch (err) {
       setError(err.message);
@@ -364,6 +364,21 @@ function TeamEditor({ team, busy, onSave, onSavePlayer, onRemovePlayer }) {
           </button>
         </div>
       </form>
+
+      {team.payment_receipt ? (
+        <div className="admin-receipt">
+          <h3>Payment receipt</h3>
+          <a href={team.payment_receipt} target="_blank" rel="noreferrer">
+            <img
+              src={team.payment_receipt}
+              alt={`${team.team_name} payment receipt`}
+              className="admin-receipt-img"
+            />
+          </a>
+        </div>
+      ) : (
+        <p className="muted">No payment receipt on file for this team.</p>
+      )}
 
       <h3>Players</h3>
       {(team.players || []).map((player) => (

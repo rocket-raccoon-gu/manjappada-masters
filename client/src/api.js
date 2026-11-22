@@ -133,6 +133,7 @@ export const api = {
     }),
   setRegistrationOpen: (registration_open) =>
     adminRequest('/api/admin/settings', { method: 'PATCH', body: { registration_open } }),
+  adminRegistration: (id) => adminRequest(`/api/admin/registrations/${id}`),
   updateRegistration: (id, body) =>
     adminRequest(`/api/admin/registrations/${id}`, { method: 'PATCH', body }),
   deleteRegistration: (id) =>
