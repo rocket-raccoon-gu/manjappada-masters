@@ -5,6 +5,7 @@ import { api, getAdminToken, setAdminToken } from '../api';
 export default function Admin() {
   const [token, setToken] = useState(getAdminToken());
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [tab, setTab] = useState('registration');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -91,12 +92,23 @@ export default function Admin() {
           <form className="register-form" onSubmit={login}>
             <label>
               Password
+              <div className="password-field">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                />
+              </div>
+            </label>
+            <label className="show-password-toggle">
               <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+                type="checkbox"
+                checked={showPassword}
+                onChange={(e) => setShowPassword(e.target.checked)}
               />
+              <span>Show password</span>
             </label>
             {error && <div className="error-box">{error}</div>}
             <button type="submit" className="btn btn-primary">
