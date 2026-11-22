@@ -410,10 +410,8 @@ app.get('/registrations', async (c) => {
        r.team_name,
        r.manager_name,
        r.contact_number,
-       r.email,
        r.captain_name,
        r.captain_mobile,
-       r.captain_email,
        r.team_logo,
        r.created_at,
        (
@@ -433,8 +431,8 @@ app.get('/registrations', async (c) => {
 app.get('/registrations/:id', async (c) => {
   const id = c.req.param('id');
   const registration = await c.env.DB.prepare(
-    `SELECT id, team_name, manager_name, contact_number, email, captain_name, captain_mobile,
-            captain_email, team_logo, created_at
+    `SELECT id, team_name, manager_name, contact_number, captain_name, captain_mobile,
+            team_logo, created_at
      FROM team_registrations WHERE id = ?`
   )
     .bind(id)

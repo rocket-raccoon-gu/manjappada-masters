@@ -54,10 +54,6 @@ export default function RegistrationDetail() {
                       <dt>Mobile Number</dt>
                       <dd>{data.contact_number}</dd>
                     </div>
-                    <div>
-                      <dt>Email Id</dt>
-                      <dd>{data.email}</dd>
-                    </div>
                   </dl>
                 </div>
                 <div className="role-level-card">
@@ -70,10 +66,6 @@ export default function RegistrationDetail() {
                     <div>
                       <dt>Mobile Number</dt>
                       <dd>{data.captain_mobile}</dd>
-                    </div>
-                    <div>
-                      <dt>Email Id</dt>
-                      <dd>{data.captain_email || '—'}</dd>
                     </div>
                   </dl>
                 </div>
