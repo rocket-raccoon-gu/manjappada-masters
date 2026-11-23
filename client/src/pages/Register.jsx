@@ -36,12 +36,26 @@ export default function Register() {
   async function onImageChange(field, event, options) {
     const file = event.target.files?.[0];
     if (!file) return;
+    setError('');
     try {
       const photo = await compressImage(file, options);
       updateTeam(field, photo);
     } catch (err) {
+      updateTeam(field, '');
       setError(err.message);
+      event.target.value = '';
     }
+  }
+
+  function showFormError(message) {
+    setError(message);
+    // Keep the message near Submit visible on mobile after native-style field checks
+    requestAnimationFrame(() => {
+      document.querySelector('.register-form .error-box')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    });
   }
 
   async function onSubmit(event) {
@@ -49,30 +63,58 @@ export default function Register() {
     setError('');
     setSuccess(null);
 
-    if (!agreedToRules) {
-      setError('Please agree to the Rules & Regulations before submitting.');
+    if (!String(team.team_name || '').trim()) {
+      showFormError('Please enter a team name.');
+      return;
+    }
+    if (!String(team.manager_name || '').trim()) {
+      showFormError('Please enter the manager name.');
+      return;
+    }
+    if (!String(team.email || '').trim()) {
+      showFormError('Please enter the manager email id.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(team.email).trim())) {
+      showFormError('Please enter a valid manager email id.');
       return;
     }
     const managerMobileErr = qatarMobileError(team.contact_number);
     if (managerMobileErr) {
-      setError(`Manager: ${managerMobileErr}`);
+      showFormError(`Manager: ${managerMobileErr}`);
+      return;
+    }
+    if (!String(team.captain_name || '').trim()) {
+      showFormError('Please enter the captain name.');
+      return;
+    }
+    if (!String(team.captain_email || '').trim()) {
+      showFormError('Please enter the captain email id.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(team.captain_email).trim())) {
+      showFormError('Please enter a valid captain email id.');
       return;
     }
     const captainMobileErr = qatarMobileError(team.captain_mobile);
     if (captainMobileErr) {
-      setError(`Captain: ${captainMobileErr}`);
+      showFormError(`Captain: ${captainMobileErr}`);
       return;
     }
     if (!team.payment_receipt) {
-      setError('Please upload a screenshot of the payment receipt.');
+      showFormError('Please upload a screenshot of the payment receipt.');
+      return;
+    }
+    if (!agreedToRules) {
+      showFormError('Please agree to the Rules & Regulations before submitting.');
       return;
     }
     if (!team.password || team.password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      showFormError('Password must be at least 6 characters.');
       return;
     }
     if (team.password !== team.password_confirm) {
-      setError('Password confirmation does not match.');
+      showFormError('Password confirmation does not match.');
       return;
     }
 
@@ -82,10 +124,10 @@ export default function Register() {
         team_name: team.team_name,
         manager_name: team.manager_name,
         contact_number: normalizeQatarMobile(team.contact_number),
-        email: team.email,
+        email: team.email.trim(),
         captain_name: team.captain_name,
         captain_mobile: normalizeQatarMobile(team.captain_mobile),
-        captain_email: team.captain_email,
+        captain_email: team.captain_email.trim(),
         team_logo: team.team_logo || null,
         payment_receipt: team.payment_receipt,
         password: team.password,
@@ -94,8 +136,9 @@ export default function Register() {
       setSuccess(result);
       setTeam(initialTeam);
       setAgreedToRules(false);
+      setShowPassword(false);
     } catch (err) {
-      setError(err.message || 'Registration failed');
+      showFormError(err.message || 'Registration failed');
     } finally {
       setSubmitting(false);
     }
@@ -155,7 +198,7 @@ export default function Register() {
           </p>
         </div>
 
-        <form className="register-form" onSubmit={onSubmit}>
+        <form className="register-form" onSubmit={onSubmit} noValidate>
           <div className="register-panel">
             <h2>Team details</h2>
             <div className="form-grid">
@@ -175,9 +218,10 @@ export default function Register() {
                   accept="image/*"
                   onChange={(e) =>
                     onImageChange('team_logo', e, {
-                      maxWidth: 640,
-                      quality: 0.88,
+                      maxWidth: 512,
+                      quality: 0.82,
                       preserveTransparency: true,
+                      maxBytes: 280_000,
                     })
                   }
                 />
@@ -275,7 +319,11 @@ export default function Register() {
                   type="file"
                   accept="image/*"
                   onChange={(e) =>
-                    onImageChange('payment_receipt', e, { maxWidth: 1200, quality: 0.78 })
+                    onImageChange('payment_receipt', e, {
+                      maxWidth: 1000,
+                      quality: 0.72,
+                      maxBytes: 380_000,
+                    })
                   }
                 />
               </label>

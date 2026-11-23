@@ -499,6 +499,19 @@ app.post('/registrations', async (c) => {
   if (!payment_receipt) {
     return c.json({ error: 'Payment receipt screenshot is required' }, 400);
   }
+  if (typeof payment_receipt !== 'string' || !payment_receipt.startsWith('data:image/')) {
+    return c.json({ error: 'Payment receipt must be an image upload' }, 400);
+  }
+  // Keep D1/request payloads safe (~700KB string ≈ ~500KB image)
+  if (payment_receipt.length > 700_000) {
+    return c.json(
+      { error: 'Payment receipt is too large. Please upload a smaller JPG/PNG screenshot.' },
+      400
+    );
+  }
+  if (team_logo && typeof team_logo === 'string' && team_logo.length > 500_000) {
+    return c.json({ error: 'Team logo is too large. Please upload a smaller image.' }, 400);
+  }
 
   if (!password || String(password).length < 6) {
     return c.json({ error: 'Password must be at least 6 characters' }, 400);
@@ -527,26 +540,38 @@ app.post('/registrations', async (c) => {
   const managerMobile = normalizeQatarMobile(contact_number);
   const captainMobile = normalizeQatarMobile(captain_mobile);
 
-  const insertTeam = await c.env.DB.prepare(
-    `INSERT INTO team_registrations
-      (team_name, manager_name, contact_number, email, captain_name, captain_mobile, captain_email,
-       team_logo, username, password_hash, payment_receipt)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  )
-    .bind(
-      team_name.trim(),
-      manager_name,
-      managerMobile,
-      email,
-      captain_name,
-      captainMobile,
-      captain_email,
-      team_logo,
-      username,
-      password_hash,
-      payment_receipt
+  let insertTeam;
+  try {
+    insertTeam = await c.env.DB.prepare(
+      `INSERT INTO team_registrations
+        (team_name, manager_name, contact_number, email, captain_name, captain_mobile, captain_email,
+         team_logo, username, password_hash, payment_receipt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
-    .run();
+      .bind(
+        team_name.trim(),
+        manager_name,
+        managerMobile,
+        email,
+        captain_name,
+        captainMobile,
+        captain_email,
+        team_logo,
+        username,
+        password_hash,
+        payment_receipt
+      )
+      .run();
+  } catch (err) {
+    const message = String(err?.message || err);
+    if (/too large|max.*size|length|SQLITE_TOOBIG|payload/i.test(message)) {
+      return c.json(
+        { error: 'Upload is too large. Please use a smaller payment receipt screenshot.' },
+        400
+      );
+    }
+    return c.json({ error: 'Could not save registration. Please try again.' }, 500);
+  }
 
   const registrationId = insertTeam.meta.last_row_id;
   return c.json(
