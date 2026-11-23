@@ -43,7 +43,7 @@ async function getTournamentId(db) {
       `INSERT INTO tournament (name, season, venue, start_date, end_date, status)
        VALUES (?, ?, ?, ?, ?, ?)`
     )
-    .bind("Masters 7's Football League", '2026', 'Doha', '2026-01-01', '2026-12-31', 'live')
+    .bind("Masters 7's Football Cup", '2026', 'Doha', '2026-01-01', '2026-12-31', 'live')
     .run();
   return created.meta.last_row_id;
 }
@@ -410,10 +410,8 @@ app.get('/registrations', async (c) => {
        r.team_name,
        r.manager_name,
        r.contact_number,
-       r.email,
        r.captain_name,
        r.captain_mobile,
-       r.captain_email,
        r.team_logo,
        r.created_at,
        (
@@ -433,8 +431,8 @@ app.get('/registrations', async (c) => {
 app.get('/registrations/:id', async (c) => {
   const id = c.req.param('id');
   const registration = await c.env.DB.prepare(
-    `SELECT id, team_name, manager_name, contact_number, email, captain_name, captain_mobile,
-            captain_email, team_logo, created_at
+    `SELECT id, team_name, manager_name, contact_number, captain_name, captain_mobile,
+            team_logo, created_at
      FROM team_registrations WHERE id = ?`
   )
     .bind(id)
@@ -445,7 +443,7 @@ app.get('/registrations/:id', async (c) => {
   }
 
   const { results: players } = await c.env.DB.prepare(
-    `SELECT id, player_name, qid_number, dob, photo, position, sort_order
+    `SELECT id, player_name, dob, position, sort_order
      FROM registration_players
      WHERE registration_id = ?
      ORDER BY sort_order ASC, id ASC`
@@ -501,6 +499,19 @@ app.post('/registrations', async (c) => {
   if (!payment_receipt) {
     return c.json({ error: 'Payment receipt screenshot is required' }, 400);
   }
+  if (typeof payment_receipt !== 'string' || !payment_receipt.startsWith('data:image/')) {
+    return c.json({ error: 'Payment receipt must be an image upload' }, 400);
+  }
+  // Keep D1/request payloads safe (~700KB string ≈ ~500KB image)
+  if (payment_receipt.length > 700_000) {
+    return c.json(
+      { error: 'Payment receipt is too large. Please upload a smaller JPG/PNG screenshot.' },
+      400
+    );
+  }
+  if (team_logo && typeof team_logo === 'string' && team_logo.length > 500_000) {
+    return c.json({ error: 'Team logo is too large. Please upload a smaller image.' }, 400);
+  }
 
   if (!password || String(password).length < 6) {
     return c.json({ error: 'Password must be at least 6 characters' }, 400);
@@ -529,26 +540,38 @@ app.post('/registrations', async (c) => {
   const managerMobile = normalizeQatarMobile(contact_number);
   const captainMobile = normalizeQatarMobile(captain_mobile);
 
-  const insertTeam = await c.env.DB.prepare(
-    `INSERT INTO team_registrations
-      (team_name, manager_name, contact_number, email, captain_name, captain_mobile, captain_email,
-       team_logo, username, password_hash, payment_receipt)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  )
-    .bind(
-      team_name.trim(),
-      manager_name,
-      managerMobile,
-      email,
-      captain_name,
-      captainMobile,
-      captain_email,
-      team_logo,
-      username,
-      password_hash,
-      payment_receipt
+  let insertTeam;
+  try {
+    insertTeam = await c.env.DB.prepare(
+      `INSERT INTO team_registrations
+        (team_name, manager_name, contact_number, email, captain_name, captain_mobile, captain_email,
+         team_logo, username, password_hash, payment_receipt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
-    .run();
+      .bind(
+        team_name.trim(),
+        manager_name,
+        managerMobile,
+        email,
+        captain_name,
+        captainMobile,
+        captain_email,
+        team_logo,
+        username,
+        password_hash,
+        payment_receipt
+      )
+      .run();
+  } catch (err) {
+    const message = String(err?.message || err);
+    if (/too large|max.*size|length|SQLITE_TOOBIG|payload/i.test(message)) {
+      return c.json(
+        { error: 'Upload is too large. Please use a smaller payment receipt screenshot.' },
+        400
+      );
+    }
+    return c.json({ error: 'Could not save registration. Please try again.' }, 500);
+  }
 
   const registrationId = insertTeam.meta.last_row_id;
   return c.json(
@@ -747,6 +770,33 @@ app.patch('/admin/settings', async (c) => {
   }
   await setSetting(c.env.DB, 'registration_open', body.registration_open ? '1' : '0');
   return c.json({ ok: true, registration_open: body.registration_open });
+});
+
+app.get('/admin/registrations/:id', async (c) => {
+  const denied = await requireAdmin(c);
+  if (denied) return denied;
+  const id = c.req.param('id');
+  const registration = await c.env.DB.prepare(
+    `SELECT id, team_name, manager_name, contact_number, email, captain_name, captain_mobile,
+            captain_email, team_logo, username, payment_receipt, created_at
+     FROM team_registrations WHERE id = ?`
+  )
+    .bind(id)
+    .first();
+  if (!registration) {
+    return c.json({ error: 'Team not found' }, 404);
+  }
+
+  const { results: players } = await c.env.DB.prepare(
+    `SELECT id, player_name, qid_number, dob, photo, position, sort_order
+     FROM registration_players
+     WHERE registration_id = ?
+     ORDER BY sort_order ASC, id ASC`
+  )
+    .bind(id)
+    .all();
+
+  return c.json({ ...registration, players });
 });
 
 app.patch('/admin/registrations/:id', async (c) => {

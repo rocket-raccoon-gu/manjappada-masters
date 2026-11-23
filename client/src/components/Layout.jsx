@@ -19,9 +19,9 @@ export default function Layout() {
       <header className="site-header">
         <div className="container nav-row">
           <NavLink to="/" className="brand">
-            <img className="brand-logo" src="/mmfl-logo.png" alt="Masters league crest" />
+            <img className="brand-logo" src="/mmfl-logo.jpg" alt="MMC Masters Cup crest" />
             <span className="brand-text">
-              <strong>Masters 7&apos;s Football League</strong>
+              <strong>Masters 7&apos;s Football Cup</strong>
               <span>Manjappada Qatar</span>
             </span>
           </NavLink>
@@ -48,8 +48,8 @@ export default function Layout() {
       <footer className="site-footer">
         <div className="container footer-row">
           <span className="footer-brand">
-            <img src="/mmfl-logo.png" alt="" />
-            Masters 7&apos;s Football League
+            <img src="/mmfl-logo.jpg" alt="" />
+            Masters 7&apos;s Football Cup
           </span>
           <NavLink to="/rules">Rules &amp; Regulations</NavLink>
           <span>Manjappada Qatar</span>

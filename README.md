@@ -1,6 +1,6 @@
 # Manjappada Masters — Club Cup
 
-Tournament website for Manjappada Masters / Masters 7's Football League.
+Tournament website for Manjappada Masters / Masters 7's Football Cup.
 
 **Local stack:** React (Vite) · Express · MySQL (XAMPP)  
 **Cloud (free):** Cloudflare Pages · Pages Functions (Hono) · D1

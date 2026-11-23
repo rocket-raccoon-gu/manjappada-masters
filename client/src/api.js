@@ -95,13 +95,21 @@ export const api = {
   registrations: () => request('/api/registrations'),
   registration: (id) => request(`/api/registrations/${id}`),
   registerTeam: async (payload) => {
-    const response = await fetch(`${API_BASE}/api/registrations`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    let response;
+    try {
+      response = await fetch(`${API_BASE}/api/registrations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      throw new Error('Network error while submitting. Check your connection and try again.');
+    }
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
+      if (response.status === 413) {
+        throw new Error('Upload is too large. Please use a smaller payment receipt screenshot.');
+      }
       throw new Error(data.error || `Request failed (${response.status})`);
     }
     return response.json();
@@ -133,6 +141,7 @@ export const api = {
     }),
   setRegistrationOpen: (registration_open) =>
     adminRequest('/api/admin/settings', { method: 'PATCH', body: { registration_open } }),
+  adminRegistration: (id) => adminRequest(`/api/admin/registrations/${id}`),
   updateRegistration: (id, body) =>
     adminRequest(`/api/admin/registrations/${id}`, { method: 'PATCH', body }),
   deleteRegistration: (id) =>

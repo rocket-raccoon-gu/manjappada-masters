@@ -1364,6 +1364,63 @@ select {
   max-width: 28rem;
 }
 
+.password-field {
+  display: grid;
+}
+
+.password-field input {
+  width: 100%;
+}
+
+.show-password-toggle {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.15rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.show-password-toggle input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--blue);
+  flex-shrink: 0;
+}
+
+.show-password-toggle span {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+
+.admin-receipt {
+  margin: 1.25rem 0;
+}
+
+.admin-receipt h3 {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--blue);
+  font-weight: 400;
+}
+
+.admin-receipt-img {
+  display: block;
+  width: min(100%, 28rem);
+  max-height: 22rem;
+  object-fit: contain;
+  border: 2px solid var(--line-strong);
+  background: var(--blue-mist);
+}
+
 .username-readonly {
   display: grid;
   gap: 0.35rem;
@@ -1431,6 +1488,10 @@ select {
   grid-template-columns: 0.9fr 1.1fr;
   gap: 0.7rem;
   margin-top: 0.7rem;
+}
+
+.player-id-card__body--no-photo {
+  grid-template-columns: 1fr;
 }
 
 .player-id-card__photo {
