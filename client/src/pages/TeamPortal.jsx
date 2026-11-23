@@ -7,7 +7,6 @@ import {
   MIN_DOB,
   digitsOnly,
   dobError,
-  qidDobMismatchError,
   qidError,
 } from '../utils/validation.js';
 
@@ -133,11 +132,6 @@ export default function TeamPortal() {
     const birthErr = dobError(playerForm.dob);
     if (birthErr) {
       setError(birthErr);
-      return;
-    }
-    const mismatch = qidDobMismatchError(qid, playerForm.dob);
-    if (mismatch) {
-      setError(mismatch);
       return;
     }
     if (!editingId && !playerForm.photo) {

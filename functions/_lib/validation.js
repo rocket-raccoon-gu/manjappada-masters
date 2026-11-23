@@ -41,19 +41,6 @@ export function isEligibleDob(value) {
   return Boolean(dob && dob <= MAX_DOB && dob >= MIN_DOB);
 }
 
-export function qidMatchesDob(qid, dob) {
-  const digits = digitsOnly(qid);
-  const parsed = parseDob(dob);
-  if (!isValidQid(digits) || !parsed) return true;
-  const century = digits[0] === '2' ? 1900 : digits[0] === '3' ? 2000 : null;
-  if (century == null) return true;
-  const year = century + Number(digits.slice(1, 3));
-  const month = digits.slice(3, 5);
-  const day = digits.slice(5, 7);
-  const expected = `${String(year).padStart(4, '0')}-${month}-${day}`;
-  return expected === parsed;
-}
-
 export function validatePlayerFields({ player_name, qid_number, dob }) {
   if (!player_name || !String(player_name).trim()) {
     return 'Player name is required';
@@ -63,9 +50,6 @@ export function validatePlayerFields({ player_name, qid_number, dob }) {
   }
   if (!isEligibleDob(dob)) {
     return 'Players must be age 35 or above (born on or before 31 December 1991)';
-  }
-  if (!qidMatchesDob(qid_number, dob)) {
-    return 'QID birth date does not match the date of birth entered';
   }
   return null;
 }
