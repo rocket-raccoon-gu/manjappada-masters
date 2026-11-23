@@ -1,6 +1,5 @@
 export default function PlayerCard({
   playerName = '',
-  qidNumber = '',
   dob = '',
   photo = '',
   position = '',
@@ -35,10 +34,6 @@ export default function PlayerCard({
           <div>
             <span className="player-id-card__label">Team</span>
             <strong>{teamName || '—'}</strong>
-          </div>
-          <div>
-            <span className="player-id-card__label">QID Number</span>
-            <strong>{qidNumber || '—'}</strong>
           </div>
           <div>
             <span className="player-id-card__label">Position</span>

@@ -84,7 +84,6 @@ export default function RegistrationDetail() {
                 <PlayerCard
                   key={player.id}
                   playerName={player.player_name}
-                  qidNumber={player.qid_number}
                   dob={player.dob}
                   photo={player.photo}
                   position={player.position}
