@@ -1490,6 +1490,10 @@ select {
   margin-top: 0.7rem;
 }
 
+.player-id-card__body--no-photo {
+  grid-template-columns: 1fr;
+}
+
 .player-id-card__photo {
   aspect-ratio: 3 / 4;
   background: rgba(255, 255, 255, 0.08);

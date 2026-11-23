@@ -443,7 +443,7 @@ app.get('/registrations/:id', async (c) => {
   }
 
   const { results: players } = await c.env.DB.prepare(
-    `SELECT id, player_name, dob, photo, position, sort_order
+    `SELECT id, player_name, dob, position, sort_order
      FROM registration_players
      WHERE registration_id = ?
      ORDER BY sort_order ASC, id ASC`

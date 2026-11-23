@@ -85,7 +85,6 @@ export default function RegistrationDetail() {
                   key={player.id}
                   playerName={player.player_name}
                   dob={player.dob}
-                  photo={player.photo}
                   position={player.position}
                   teamName={data.team_name}
                 />

@@ -1,7 +1,6 @@
 export default function PlayerCard({
   playerName = '',
   dob = '',
-  photo = '',
   position = '',
   teamName = '',
 }) {
@@ -18,14 +17,7 @@ export default function PlayerCard({
       <div className="player-id-card__title">Masters 7&apos;s Football Cup</div>
       <div className="player-id-card__region">Qatar</div>
 
-      <div className="player-id-card__body">
-        <div className="player-id-card__photo">
-          {photo ? (
-            <img src={photo} alt={playerName || 'Player'} />
-          ) : (
-            <span>Photo</span>
-          )}
-        </div>
+      <div className="player-id-card__body player-id-card__body--no-photo">
         <div className="player-id-card__meta">
           <div>
             <span className="player-id-card__label">DOB</span>
