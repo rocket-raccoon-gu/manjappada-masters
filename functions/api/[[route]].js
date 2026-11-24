@@ -811,6 +811,22 @@ app.patch('/admin/registrations/:id', async (c) => {
     return c.json({ error: 'Team not found' }, 404);
   }
 
+  let password_hash = current.password_hash;
+  if (body.password !== undefined && body.password !== null && body.password !== '') {
+    if (String(body.password).length < 6) {
+      return c.json({ error: 'Password must be at least 6 characters' }, 400);
+    }
+    password_hash = await hashPassword(String(body.password));
+  }
+
+  let team_logo = current.team_logo;
+  if (Object.prototype.hasOwnProperty.call(body, 'team_logo')) {
+    if (body.team_logo && typeof body.team_logo === 'string' && body.team_logo.length > 500_000) {
+      return c.json({ error: 'Team logo is too large' }, 400);
+    }
+    team_logo = body.team_logo || null;
+  }
+
   await c.env.DB.prepare(
     `UPDATE team_registrations
      SET team_name = ?,
@@ -819,7 +835,9 @@ app.patch('/admin/registrations/:id', async (c) => {
          email = ?,
          captain_name = ?,
          captain_mobile = ?,
-         captain_email = ?
+         captain_email = ?,
+         password_hash = ?,
+         team_logo = ?
      WHERE id = ?`
   )
     .bind(
@@ -830,6 +848,8 @@ app.patch('/admin/registrations/:id', async (c) => {
       body.captain_name ?? current.captain_name,
       body.captain_mobile ?? current.captain_mobile,
       body.captain_email ?? current.captain_email,
+      password_hash,
+      team_logo,
       id
     )
     .run();
