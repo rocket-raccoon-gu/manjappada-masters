@@ -9,7 +9,8 @@ import {
   dobError,
   qidError,
 } from '../utils/validation.js';
-import { MAX_PLAYERS, squadProgress } from '../utils/squad.js';
+import { MAX_PLAYERS } from '../utils/squad.js';
+import SquadProgress from '../components/SquadProgress.jsx';
 
 const emptyPlayer = {
   player_name: '',
@@ -254,7 +255,6 @@ export default function TeamPortal() {
 
   const players = team?.players || [];
   const canAddMore = players.length < MAX_PLAYERS;
-  const progress = squadProgress(players.length);
 
   return (
     <section className="section">
@@ -265,14 +265,10 @@ export default function TeamPortal() {
             Add up to {MAX_PLAYERS} players with QID and ID card photo. Return anytime with username{' '}
             <strong>{team?.username}</strong>.
           </p>
-          <p
-            className={
-              progress.complete ? 'team-progress team-progress--complete' : 'team-progress'
-            }
-          >
-            {progress.label}
-            {!progress.complete ? ' — keep adding players to complete your squad.' : ''}
-          </p>
+          <SquadProgress
+            playerCount={players.length}
+            hint="— keep adding players to complete your squad."
+          />
         </div>
 
         <div className="cta-row" style={{ marginBottom: '1.5rem' }}>

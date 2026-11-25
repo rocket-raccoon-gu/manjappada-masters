@@ -2,12 +2,11 @@ import { Link, useParams } from 'react-router-dom';
 import { api } from '../api';
 import useApi from '../hooks/useApi';
 import PlayerCard from '../components/PlayerCard.jsx';
-import { squadProgress } from '../utils/squad.js';
+import SquadProgress from '../components/SquadProgress.jsx';
 
 export default function RegistrationDetail() {
   const { id } = useParams();
   const { data, loading, error } = useApi(() => api.registration(id), [id]);
-  const progress = squadProgress((data?.players || []).length);
 
   return (
     <section className="section">
@@ -41,13 +40,7 @@ export default function RegistrationDetail() {
                 <div>
                   <h1>{data.team_name}</h1>
                   <p>Masters 7&apos;s Football Cup · Manjappada Qatar</p>
-                  <p
-                    className={
-                      progress.complete ? 'team-progress team-progress--complete' : 'team-progress'
-                    }
-                  >
-                    {progress.label}
-                  </p>
+                  <SquadProgress playerCount={(data.players || []).length} />
                 </div>
               </div>
 
