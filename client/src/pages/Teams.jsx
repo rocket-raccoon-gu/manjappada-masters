@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import useApi from '../hooks/useApi';
+import SquadProgress from '../components/SquadProgress.jsx';
 
 export default function Teams() {
   const { data, loading, error } = useApi(() => api.registrations(), []);
@@ -40,6 +41,7 @@ export default function Teams() {
                   {team.player_count === 1 ? '' : 's'}
                 </p>
                 <p className="muted">Manager {team.manager_name}</p>
+                <SquadProgress playerCount={team.player_count} />
               </Link>
             ))}
           </div>

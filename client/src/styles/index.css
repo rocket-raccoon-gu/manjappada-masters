@@ -1218,6 +1218,46 @@ select {
   font-size: 0.88rem;
 }
 
+.squad-progress {
+  margin: 0.55rem 0 0;
+  max-width: 16rem;
+}
+
+.team-tile .squad-progress {
+  margin-top: 0.65rem;
+}
+
+.squad-progress__track {
+  height: 0.45rem;
+  border-radius: 999px;
+  background: rgba(0, 41, 156, 0.12);
+  overflow: hidden;
+}
+
+.squad-progress__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--blue), #1a4fd6);
+  transition: width 0.35s ease;
+}
+
+.squad-progress--complete .squad-progress__fill {
+  background: linear-gradient(90deg, #0f6b3a, #1a9a55);
+}
+
+.squad-progress__label {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--blue);
+}
+
+.squad-progress--complete .squad-progress__label {
+  color: #0f6b3a;
+}
+
 .logo-preview {
   margin-top: 1rem;
   width: 7rem;

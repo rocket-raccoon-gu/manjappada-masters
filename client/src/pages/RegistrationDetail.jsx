@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { api } from '../api';
 import useApi from '../hooks/useApi';
 import PlayerCard from '../components/PlayerCard.jsx';
+import SquadProgress from '../components/SquadProgress.jsx';
 
 export default function RegistrationDetail() {
   const { id } = useParams();
@@ -39,6 +40,7 @@ export default function RegistrationDetail() {
                 <div>
                   <h1>{data.team_name}</h1>
                   <p>Masters 7&apos;s Football Cup · Manjappada Qatar</p>
+                  <SquadProgress playerCount={(data.players || []).length} />
                 </div>
               </div>
 
