@@ -38,6 +38,11 @@ export default function Layout() {
               </NavLink>
             )}
           </nav>
+          <img
+            className="partner-logo"
+            src="/manjappada-kbfc-supporters-logo.png"
+            alt="Manjappada KBFC Supporters Club"
+          />
         </div>
       </header>
 
