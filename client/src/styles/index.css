@@ -1218,6 +1218,22 @@ select {
   font-size: 0.88rem;
 }
 
+.team-progress {
+  margin: 0.45rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--blue);
+}
+
+.team-progress--complete {
+  color: #0f6b3a;
+}
+
+.team-tile .team-progress {
+  margin-top: 0.55rem;
+}
+
 .logo-preview {
   margin-top: 1rem;
   width: 7rem;

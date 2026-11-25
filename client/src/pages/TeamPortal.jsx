@@ -9,6 +9,7 @@ import {
   dobError,
   qidError,
 } from '../utils/validation.js';
+import { MAX_PLAYERS, squadProgress } from '../utils/squad.js';
 
 const emptyPlayer = {
   player_name: '',
@@ -252,7 +253,8 @@ export default function TeamPortal() {
   }
 
   const players = team?.players || [];
-  const canAddMore = players.length < 12;
+  const canAddMore = players.length < MAX_PLAYERS;
+  const progress = squadProgress(players.length);
 
   return (
     <section className="section">
@@ -260,8 +262,16 @@ export default function TeamPortal() {
         <div className="page-hero register-hero">
           <h1>{team?.team_name || 'My team'}</h1>
           <p>
-            Add up to 12 players with QID and ID card photo. Return anytime with username{' '}
+            Add up to {MAX_PLAYERS} players with QID and ID card photo. Return anytime with username{' '}
             <strong>{team?.username}</strong>.
+          </p>
+          <p
+            className={
+              progress.complete ? 'team-progress team-progress--complete' : 'team-progress'
+            }
+          >
+            {progress.label}
+            {!progress.complete ? ' — keep adding players to complete your squad.' : ''}
           </p>
         </div>
 
@@ -307,7 +317,7 @@ export default function TeamPortal() {
         </div>
 
         <div className="register-panel" style={{ marginBottom: '1.5rem' }}>
-          <h2>Squad ({players.length}/12)</h2>
+          <h2>Squad ({players.length}/{MAX_PLAYERS})</h2>
           {players.length === 0 ? (
             <p className="muted">No players yet — add your first player below.</p>
           ) : (
@@ -427,7 +437,9 @@ export default function TeamPortal() {
         )}
 
         {!canAddMore && !editingId && (
-          <p className="muted">Squad is full (12 players). Edit or remove a player to make space.</p>
+          <p className="muted">
+            Squad is full ({MAX_PLAYERS} players). Edit or remove a player to make space.
+          </p>
         )}
 
         {error && !(canAddMore || editingId) && <div className="error-box">{error}</div>}

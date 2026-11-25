@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import useApi from '../hooks/useApi';
+import { squadProgress } from '../utils/squad';
 
 export default function Teams() {
   const { data, loading, error } = useApi(() => api.registrations(), []);
@@ -25,23 +26,33 @@ export default function Teams() {
         )}
         {!loading && !error && (
           <div className="team-grid">
-            {(data || []).map((team) => (
-              <Link key={team.id} to={`/registrations/${team.id}`} className="team-tile">
-                {team.team_logo ? (
-                  <img className="team-logo-thumb" src={team.team_logo} alt="" />
-                ) : (
-                  <span className="crest" style={{ background: '#00299c', width: '3rem', height: '3rem' }}>
-                    {(team.team_name || 'TM').slice(0, 3).toUpperCase()}
-                  </span>
-                )}
-                <h3>{team.team_name}</h3>
-                <p>
-                  Captain {team.captain_name} · {team.player_count} player
-                  {team.player_count === 1 ? '' : 's'}
-                </p>
-                <p className="muted">Manager {team.manager_name}</p>
-              </Link>
-            ))}
+            {(data || []).map((team) => {
+              const progress = squadProgress(team.player_count);
+              return (
+                <Link key={team.id} to={`/registrations/${team.id}`} className="team-tile">
+                  {team.team_logo ? (
+                    <img className="team-logo-thumb" src={team.team_logo} alt="" />
+                  ) : (
+                    <span className="crest" style={{ background: '#00299c', width: '3rem', height: '3rem' }}>
+                      {(team.team_name || 'TM').slice(0, 3).toUpperCase()}
+                    </span>
+                  )}
+                  <h3>{team.team_name}</h3>
+                  <p>
+                    Captain {team.captain_name} · {team.player_count} player
+                    {team.player_count === 1 ? '' : 's'}
+                  </p>
+                  <p className="muted">Manager {team.manager_name}</p>
+                  <p
+                    className={
+                      progress.complete ? 'team-progress team-progress--complete' : 'team-progress'
+                    }
+                  >
+                    {progress.label}
+                  </p>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
