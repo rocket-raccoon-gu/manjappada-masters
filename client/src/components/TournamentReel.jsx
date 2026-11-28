@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { api } from '../api';
+import useApi from '../hooks/useApi';
 
 const SLIDES = [
   {
@@ -27,6 +29,8 @@ const INTERVAL_MS = 5200;
 export default function TournamentReel() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  const settings = useApi(() => api.settings(), []);
+  const registrationOpen = settings.data?.registration_open === true;
 
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -59,11 +63,16 @@ export default function TournamentReel() {
               <h2>{slide.title}</h2>
               <p>{slide.copy}</p>
               <div className="cta-row">
-                <Link className="btn btn-primary" to="/register">
-                  Join Now
-                </Link>
+                {registrationOpen && (
+                  <Link className="btn btn-primary" to="/register">
+                    Join Now
+                  </Link>
+                )}
                 <Link className="btn btn-ghost" to="/rules">
                   Read rules
+                </Link>
+                <Link className="btn btn-ghost" to="/team">
+                  Team login
                 </Link>
               </div>
             </figcaption>

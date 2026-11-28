@@ -11,7 +11,7 @@ export default function Home() {
   const standings = useApi(() => api.standings(), []);
   const scorers = useApi(() => api.scorers(), []);
   const settings = useApi(() => api.settings(), []);
-  const registrationOpen = settings.data?.registration_open !== false;
+  const registrationOpen = settings.data?.registration_open === true;
 
   const upcoming = (matches.data || [])
     .filter((m) => m.status === 'scheduled' || m.status === 'live')

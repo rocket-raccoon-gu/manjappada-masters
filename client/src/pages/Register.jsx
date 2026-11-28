@@ -21,7 +21,7 @@ const initialTeam = {
 
 export default function Register() {
   const settings = useApi(() => api.settings(), []);
-  const registrationOpen = settings.data?.registration_open !== false;
+  const registrationOpen = settings.data?.registration_open === true;
   const [team, setTeam] = useState(initialTeam);
   const [agreedToRules, setAgreedToRules] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -144,17 +144,35 @@ export default function Register() {
     }
   }
 
-  if (!registrationOpen && !settings.loading) {
+  if (settings.loading) {
+    return (
+      <section className="section">
+        <div className="container">
+          <div className="state-box">Checking registration…</div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!registrationOpen) {
     return (
       <section className="section">
         <div className="container">
           <div className="page-hero">
             <h1>Registration closed</h1>
-            <p>Team registration is not open right now. Check the teams page for joined squads.</p>
+            <p>
+              Maximum teams have been reached. New team registration is closed. Already registered?
+              Use Team login to manage your squad.
+            </p>
           </div>
-          <Link className="btn btn-primary" to="/teams">
-            View teams
-          </Link>
+          <div className="cta-row">
+            <Link className="btn btn-primary" to="/team">
+              Team login
+            </Link>
+            <Link className="btn btn-ghost on-light" to="/teams">
+              View teams
+            </Link>
+          </div>
         </div>
       </section>
     );
@@ -175,9 +193,6 @@ export default function Register() {
             <Link className="btn btn-primary" to="/team">
               Team login
             </Link>
-            <button type="button" className="btn btn-ghost on-light" onClick={() => setSuccess(null)}>
-              Register another team
-            </button>
             <Link className="btn btn-ghost on-light" to="/teams">
               All teams
             </Link>

@@ -101,10 +101,11 @@ app.onError((err, c) => {
 
 app.get('/settings', async (c) => {
   try {
-    const value = await getSetting(c.env.DB, 'registration_open', '1');
+    // Default closed: max teams reached for Masters Cup 2026
+    const value = await getSetting(c.env.DB, 'registration_open', '0');
     return c.json({ registration_open: value !== '0' });
   } catch {
-    return c.json({ registration_open: true });
+    return c.json({ registration_open: false });
   }
 });
 
@@ -455,9 +456,12 @@ app.get('/registrations/:id', async (c) => {
 });
 
 app.post('/registrations', async (c) => {
-  const open = await getSetting(c.env.DB, 'registration_open', '1');
+  const open = await getSetting(c.env.DB, 'registration_open', '0');
   if (open === '0') {
-    return c.json({ error: 'Registration is closed' }, 403);
+    return c.json(
+      { error: 'Registration is closed — maximum teams have been reached' },
+      403
+    );
   }
   const body = await c.req.json();
   const {

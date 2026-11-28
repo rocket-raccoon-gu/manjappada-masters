@@ -12,7 +12,7 @@ const links = [
 
 export default function Layout() {
   const settings = useApi(() => api.settings(), []);
-  const registrationOpen = settings.data?.registration_open !== false;
+  const registrationOpen = settings.data?.registration_open === true;
 
   return (
     <div className="site-shell">

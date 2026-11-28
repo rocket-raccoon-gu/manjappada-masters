@@ -1,4 +1,4 @@
-name = "manjappada-masters"
+name = "manjappada-tournaments"
 pages_build_output_dir = "client/dist"
 compatibility_date = "2026-08-10"
 compatibility_flags = ["nodejs_compat"]

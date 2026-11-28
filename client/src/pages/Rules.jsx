@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import { api } from '../api';
+import useApi from '../hooks/useApi';
 import useReveal from '../hooks/useReveal.js';
 
 const DOCX_HREF = '/docs/Masters-Cup-2026-Rules-Regulations-By-Laws-Ver2.0.docx';
@@ -170,6 +172,8 @@ const sections = [
 
 export default function Rules() {
   useReveal();
+  const settings = useApi(() => api.settings(), []);
+  const registrationOpen = settings.data?.registration_open === true;
 
   return (
     <section className="section rules-page">
@@ -206,9 +210,15 @@ export default function Rules() {
               <h2>Rules at a glance</h2>
               <p>Four picture guides before the full by-laws text.</p>
             </div>
-            <Link className="muted" to="/register">
-              Register a team →
-            </Link>
+            {registrationOpen ? (
+              <Link className="muted" to="/register">
+                Register a team →
+              </Link>
+            ) : (
+              <Link className="muted" to="/team">
+                Team login →
+              </Link>
+            )}
           </div>
           <div className="rules-explain-grid">
             {explainers.map((card, index) => (
@@ -267,9 +277,15 @@ export default function Rules() {
             <a className="btn btn-ghost" href={DOCX_HREF} download>
               Get the full Ver 2.0 document
             </a>
-            <Link className="btn btn-primary" to="/register">
-              Join Now
-            </Link>
+            {registrationOpen ? (
+              <Link className="btn btn-primary" to="/register">
+                Join Now
+              </Link>
+            ) : (
+              <Link className="btn btn-primary" to="/team">
+                Team login
+              </Link>
+            )}
           </div>
         </div>
       </div>

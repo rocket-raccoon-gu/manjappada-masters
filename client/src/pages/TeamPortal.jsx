@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, getTeamToken, setTeamToken } from '../api';
+import useApi from '../hooks/useApi';
 import { compressImage } from '../utils/image.js';
 import {
   MAX_DOB,
@@ -21,6 +22,8 @@ const emptyPlayer = {
 };
 
 export default function TeamPortal() {
+  const settings = useApi(() => api.settings(), []);
+  const registrationOpen = settings.data?.registration_open === true;
   const [token, setToken] = useState(() => getTeamToken());
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -232,9 +235,15 @@ export default function TeamPortal() {
                 <button type="submit" className="btn btn-primary" disabled={loggingIn}>
                   {loggingIn ? 'Signing in…' : 'Sign in'}
                 </button>
-                <Link className="btn btn-ghost on-light" to="/register">
-                  New team? Join Now
-                </Link>
+                {registrationOpen ? (
+                  <Link className="btn btn-ghost on-light" to="/register">
+                    New team? Join Now
+                  </Link>
+                ) : (
+                  <p className="muted" style={{ margin: 0 }}>
+                    Registration closed — max teams reached.
+                  </p>
+                )}
               </div>
             </div>
           </form>

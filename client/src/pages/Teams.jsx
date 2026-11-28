@@ -5,6 +5,8 @@ import SquadProgress from '../components/SquadProgress.jsx';
 
 export default function Teams() {
   const { data, loading, error } = useApi(() => api.registrations(), []);
+  const settings = useApi(() => api.settings(), []);
+  const registrationOpen = settings.data?.registration_open === true;
 
   return (
     <section className="section">
@@ -19,9 +21,15 @@ export default function Teams() {
         {!loading && !error && !(data || []).length && (
           <div className="state-box">
             <p>No teams have joined yet.</p>
-            <Link className="btn btn-primary" to="/register" style={{ marginTop: '1rem' }}>
-              Join Now
-            </Link>
+            {registrationOpen ? (
+              <Link className="btn btn-primary" to="/register" style={{ marginTop: '1rem' }}>
+                Join Now
+              </Link>
+            ) : (
+              <p className="muted" style={{ marginTop: '1rem' }}>
+                Registration is closed — maximum teams reached.
+              </p>
+            )}
           </div>
         )}
         {!loading && !error && (
